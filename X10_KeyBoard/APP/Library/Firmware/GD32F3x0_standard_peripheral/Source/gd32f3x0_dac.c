@@ -11,7 +11,7 @@
 
 #ifdef GD32F350
 #include "gd32f3x0_dac.h"
-
+#include "gd32f3x0_rcu.h"
 /*!
     \brief      deinitialize DAC
     \param[in]  none

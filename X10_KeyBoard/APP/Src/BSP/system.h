@@ -11,11 +11,25 @@
 
 
 
+
 typedef struct
 {
     uint32_t magic_number;
 	uint8_t printfSwitch;
+	unsigned char soft_version;
+    unsigned char blue_state;
+    unsigned char blue_version[20];
+    unsigned char blue_name[12];
+    unsigned char gw_mac[5];
 }SYSTEM_INFO_T;
+
+typedef struct
+{
+    unsigned char system_state;
+    unsigned char blue_state;
+    unsigned char card_state;
+    unsigned char key_state;
+}SYSTEM_STATUS_T;
 
 typedef struct{
 	uint32_t CurrentPackage; 	//当前接收固件数据包
@@ -62,6 +76,7 @@ extern uint32_t GetTimeTicks(void);
 
 
 extern SYSTEM_INFO_T	SystemInfo;
+extern SYSTEM_STATUS_T	SystemStatus;
 extern GLOBAL_INFO_T	GlobalInfo;
 
 extern rcu_periph_enum RCU_TIMERX[TIMER_MAX];

@@ -11,9 +11,10 @@
 #include "gd32f3x0_gpio.h"
 #include "task.h"
 
-#define WATCH_DOG_ENABLE        	1
+#define WATCH_DOG_ENABLE        	    1
 
 SYSTEM_INFO_T	SystemInfo = {0,};
+SYSTEM_STATUS_T SystemStatus = {0,};
 GLOBAL_INFO_T	GlobalInfo = {0,};
 
 
@@ -56,10 +57,13 @@ void FeedWatchDog(void)
 void LoadSystemInfo(void)
 {
 //    const uint8_t station_id[8] = {0x00,0x00,0x00,0x66,0x77,0x88,0x99,0x00};
+	memset(&SystemInfo,0,sizeof(SystemInfo));
+    memset(&SystemStatus,0,sizeof(SystemStatus));
     FlashReadSysInfo(&SystemInfo, sizeof(SystemInfo));
 	memset((void*)&GlobalInfo, 0, sizeof(GlobalInfo));
 	
-    if ((MAGIC_NUM_BASE) == SystemInfo.magic_number) 
+   // if ((MAGIC_NUM_BASE) == SystemInfo.magic_number) 
+   	if(0)
     {
         printf("\n\n\n===========================================================\n");
         CL_LOG("\rU8Sub∆Ù∂ØApp\n");
@@ -68,7 +72,8 @@ void LoadSystemInfo(void)
     {
         printf("\n\n\n***********************************************************\n");
         CL_LOG("\rU8Sub≥ı¥Œ∆Ù∂ØApp\n");
-		SetRtcCount(1545383878);	
+		SetRtcCount(1545991167);
+        
 //	time_t mktime(strcut tm * timeptr);
         memset((void*)&SystemInfo, 0, sizeof(SystemInfo));
         SystemInfo.magic_number = MAGIC_NUM_BASE;
@@ -213,7 +218,7 @@ void TimerConfig(uint8_t Index, uint32_t Period, uint8_t UserIrq)
     timer_deinit(TIMERX[Index]);
 
     /* TIMER0 configuration */
-    timer_initpara.prescaler         = 83;
+    timer_initpara.prescaler         = 107;
     timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
     timer_initpara.counterdirection  = TIMER_COUNTER_UP;
     timer_initpara.period            = Period;
@@ -231,8 +236,8 @@ void TimerConfig(uint8_t Index, uint32_t Period, uint8_t UserIrq)
     /* auto-reload preload enable */
     timer_auto_reload_shadow_enable(TIMERX[Index]);
 	
-//	timer_enable(TIMERX[Index]);
-//	if(0 == Index)
+	timer_enable(TIMERX[Index]);
+	if(0 == Index)
 	{
 		timer_disable(TIMERX[Index]);
 	}

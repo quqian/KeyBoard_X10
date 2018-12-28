@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <time.h>
 #include "rtc.h"
 #include "includes.h"
@@ -23,7 +24,7 @@ void rtc_show_alarm(void)
     rtc_alarm_get(&GlobalInfo.rtc_alarm);
 }
 
-#define RTC_CLOCK_SOURCE_LXTAL
+#define RTC_CLOCK_SOURCE_IRC40K
 void rtc_pre_config(void)
 {
     /* enable access to RTC registers in backup domain */
@@ -142,9 +143,24 @@ int LinuxTickToDay(time_t timestamp, uint8_t *pDay)
     pDay[1] = time_now->tm_year-100;
     pDay[2] = time_now->tm_mon+1;
     pDay[3] = time_now->tm_mday;
-    pDay[4] = time_now->tm_hour+8;
+    pDay[4] = time_now->tm_hour + 8;
     pDay[5] = time_now->tm_min;
     pDay[6] = time_now->tm_sec;
+    while(24 <= pDay[4])
+    {
+        pDay[4] = pDay[4] - 24;
+        pDay[3] = pDay[3] + 1;
+    }
+    while(60 <= pDay[5])
+    {
+        pDay[5] = pDay[5] - 60;
+        pDay[4] = pDay[4] + 1;
+    }
+    while(60 <= pDay[6])
+    {
+        pDay[6] = pDay[6] - 60;
+        pDay[5] = pDay[5] + 1;
+    }
 //	strftime(gStrfTime, sizeof(gStrfTime), "%D%T", time_now);
 //	CL_LOG("pDay[0][%d], pDay[1][%d], pDay[2][%d], pDay[3][%d], pDay[4][%d], pDay[5][%d], pDay[6][%d], \n", pDay[0], pDay[1], pDay[2], pDay[3], pDay[4], pDay[5], pDay[6]);
 
@@ -188,7 +204,7 @@ char* GetCurrentTime(void)
 	return gTimeStr;
 }
 
-uint8_t HEX2BCD(uint8_t bcd_data)    //BCD转为HEX子程序    
+uint8_t HEX2BCD(uint8_t bcd_data)  
 {   
     uint8_t temp; 
 
@@ -197,7 +213,7 @@ uint8_t HEX2BCD(uint8_t bcd_data)    //BCD转为HEX子程序
 	return temp;   
 }   
 
-uint8_t BCD2HEX(uint8_t hex_data)    //HEX转为BCD子程序     
+uint8_t BCD2HEX(uint8_t hex_data)  
 {   
     uint8_t temp;   
 	
@@ -234,10 +250,32 @@ void SetRtcCount(time_t timestamp)
 	GlobalInfo.RtcData.rtc_am_pm 		= RTC_AM;		//0:AM  !0:PM
 	GlobalInfo.RtcData.rtc_display_format = RTC_24HOUR;
 
+//	printf("hhhhhhhhhhhhhhh[%2x%02x%02x %02x:%02x:%02x] \n", GlobalInfo.RtcData.rtc_year, GlobalInfo.RtcData.rtc_month, 
+//		GlobalInfo.RtcData.rtc_date, GlobalInfo.RtcData.rtc_hour, GlobalInfo.RtcData.rtc_minute, GlobalInfo.RtcData.rtc_second);
 	SetRtcTime(&GlobalInfo.RtcData);
 //	RTC_BKP0 = BKP_VALUE;
 }
 
+int64_t GetRtcTimeStamp(void)
+{
+    struct tm TimeTickss;
+    rtc_parameter_struct RtcData = {0,};
+    
+	rtc_current_time_get(&RtcData);
+    memset(&TimeTickss,0,sizeof(struct tm));
+    TimeTickss.tm_year =  BCD2HEX(RtcData.rtc_year);
+    TimeTickss.tm_mon = BCD2HEX(RtcData.rtc_month);
+    TimeTickss.tm_mday = BCD2HEX(RtcData.rtc_date);
+    TimeTickss.tm_wday = BCD2HEX(RtcData.rtc_day_of_week);
+    TimeTickss.tm_hour = BCD2HEX(RtcData.rtc_hour);
+    TimeTickss.tm_min = BCD2HEX(RtcData.rtc_minute);
+    TimeTickss.tm_sec = BCD2HEX(RtcData.rtc_second);
+    
+//    printf("\naaaaa[%d,%d,%d,%d,%d,%d] \n", TimeTickss.tm_year, TimeTickss.tm_mon, 
+//    TimeTickss.tm_mday, TimeTickss.tm_hour, TimeTickss.tm_min, TimeTickss.tm_sec);
+    
+    return mktime(&TimeTickss);
+}
 
 
 

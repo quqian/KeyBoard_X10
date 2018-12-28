@@ -81,6 +81,9 @@ typedef struct {
     uint8_t  data[128];
 }OUT_PKT_STR;
 
+typedef struct {
+    uint32_t  SetRTC;
+}SET_RTC_STR;
 
 #pragma pack()
 
@@ -88,7 +91,6 @@ typedef struct {
 
 extern void DebugRecvProc(void);
 extern void SendTestPktAck(uint8_t cmd, uint8_t *pkt, uint8_t len);
-//extern void ComTask(void);
 
 #endif
 

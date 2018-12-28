@@ -46,22 +46,22 @@ int fputc(int ch, FILE *f)
 #else
 {
 //    FeedWatchDog();
-    if (gWrite < sizeof(gPrintBuff))
-    {
-        gPrintBuff[gWrite++] = ch;
-        if ('\n' == ch) 
-        {
-            UsartSend(DEBUG_INDEX, (void *)gPrintBuff, gWrite);
-			//SimuUartSendData(&gSimUartCtrl[0], (void *)gPrintBuff, gWrite);
-            gWrite = 0;
-        }
-    }
-    else
-    {
-		UsartSend(DEBUG_INDEX, (void *)gPrintBuff, sizeof(gPrintBuff));
-		//SimuUartSendData(&gSimUartCtrl[0], (void *)gPrintBuff, sizeof(gPrintBuff));
-        gWrite = 0;
-	}
+//    if (gWrite < sizeof(gPrintBuff))
+//    {
+//        gPrintBuff[gWrite++] = ch;
+//        if ('\n' == ch) 
+//        {
+//            UsartSend(DEBUG_INDEX, (void *)gPrintBuff, gWrite);
+//			//SimuUartSendData(&gSimUartCtrl[0], (void *)gPrintBuff, gWrite);
+//            gWrite = 0;
+//        }
+//    }
+//    else
+//    {
+//		UsartSend(DEBUG_INDEX, (void *)gPrintBuff, sizeof(gPrintBuff));
+//		//SimuUartSendData(&gSimUartCtrl[0], (void *)gPrintBuff, sizeof(gPrintBuff));
+//        gWrite = 0;
+//	}
     return ch;
 }
 #endif

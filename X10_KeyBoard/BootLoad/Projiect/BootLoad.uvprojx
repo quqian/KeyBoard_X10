@@ -13,16 +13,16 @@
       <pCCUsed>5050169::V5.05 update 2 (build 169)::ARMCC</pCCUsed>
       <TargetOption>
         <TargetCommonOption>
-          <Device>GD32F330CB</Device>
+          <Device>GD32F350CB</Device>
           <Vendor>GigaDevice</Vendor>
           <PackID>GigaDevice.GD32F3x0_DFP.1.0.0</PackID>
           <PackURL>http://gd32mcu.21ic.com/data/documents/yingyongruanjian/</PackURL>
           <Cpu>IROM(0x08000000,0x20000) IRAM(0x20000000,0x04000) CPUTYPE("Cortex-M4") CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0GD32F3x0 -FS08000000 -FL020000 -FP0($$Device:GD32F330CB$Flash\GD32F3x0.FLM))</FlashDriverDll>
+          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0GD32F3x0 -FS08000000 -FL020000 -FP0($$Device:GD32F350CB$Flash\GD32F3x0.FLM))</FlashDriverDll>
           <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:GD32F330CB$Device\Include\gd32f3x0.h</RegisterFile>
+          <RegisterFile>$$Device:GD32F350CB$Device\Include\gd32f3x0.h</RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -32,7 +32,7 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:GD32F330CB$SVD\GD32F3x0.svd</SFDFile>
+          <SFDFile>$$Device:GD32F350CB$SVD\GD32F3x0.svd</SFDFile>
           <bCustSvd>0</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
@@ -330,7 +330,7 @@
             <vShortWch>1</vShortWch>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_STDPERIPH_DRIVER,GD32F330</Define>
+              <Define>USE_STDPERIPH_DRIVER,GD32F350</Define>
               <Undefine></Undefine>
               <IncludePath>..\Library\Firmware\GD32F3x0_standard_peripheral\Include;..\Src\BSP;..\Src\Application;..\Src;..\Library\Firmware\CMSIS</IncludePath>
             </VariousControls>

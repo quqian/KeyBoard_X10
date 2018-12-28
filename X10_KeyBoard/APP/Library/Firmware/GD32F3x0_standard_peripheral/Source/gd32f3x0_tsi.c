@@ -209,7 +209,8 @@ void tsi_plus_config(uint32_t prescaler,uint32_t charge_duration,uint32_t transf
 */
 void tsi_sofeware_mode_config(void)
 {
-    if(RESET == (TSI_CTL0 & TSI_CTL0_TSIS)){
+    if(RESET == (TSI_CTL0 & TSI_CTL0_TSIS))
+	{
         TSI_CTL0 &= ~TSI_CTL0_TRGMOD;
     }
 }
@@ -650,3 +651,4 @@ uint16_t tsi_group5_cycle_get(void)
 {
     return (uint16_t)TSI_G5CYCN;
 }
+

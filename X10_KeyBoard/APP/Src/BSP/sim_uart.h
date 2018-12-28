@@ -11,8 +11,8 @@
 
 #define SimUartDelay				DelayUs
 #define COM_BAUD_TIMES				(8)
-#define COM_DATA_HIGH()				gpio_bit_set(GPIOB, GPIO_PIN_1)	//高电平
-#define COM_DATA_LOW()				gpio_bit_reset(GPIOB, GPIO_PIN_1) //低电平
+#define COM_DATA_HIGH()				gpio_bit_set(GPIOC, GPIO_PIN_13)	//高电平
+#define COM_DATA_LOW()				gpio_bit_reset(GPIOC, GPIO_PIN_13) //低电平
 
 
 enum{

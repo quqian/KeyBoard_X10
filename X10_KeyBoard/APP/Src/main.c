@@ -1,5 +1,5 @@
 /*****************************************************************************
-** @Author: quqian  
+** @Author: quqian
 ** @Date: 2018-12-21 14:20:14 
 ** @File: main.c
 ** @MCU: GD32F350CBT6   
@@ -33,93 +33,74 @@
 #include "sim_uart.h"
 #include "ComProto.h"
 #include "led.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "timers.h"
-#include "stack_macros.h"
+
 
 
 
 
 void BspInit(void)
 {
-//    StartDelay();
     LedInit();
     WatchDogInit();             //看门狗初始化
     FeedWatchDog();
 #if USE_TIMER1
-    TimerConfig(1, 100, 0);
+    TimerConfig(1, 1000, 1);
 #endif
-//	SystickInit();
+	SystickInit();
 	SimUartInit();
-    DelayMsWithNoneOs(2000);
+    DelayMsWithNoneOs(1000);
 	UsartInit();                //串口初始化
-
 	RtcInit();
+    DelayMsWithNoneOs(1000);
 	LoadSystemInfo();
     SystemResetRecord();
     printf("UsartInit OK!\r\n");
-    SC8042B_Init();
+//    SC8042B_Init();
 	FM175XX_Config();
 
-//语音提示    
-    PlayVoice(VOIC_WELCOME);            //欢迎使用
-    DelayMsWithNoneOs(900);
-//    PlayVoice(VOIC_SHARE_CHARGE);       //共享充电
+////语音提示    
+//    PlayVoice(VOIC_WELCOME);            //欢迎使用
+//    DelayMsWithNoneOs(900);
+////    PlayVoice(VOIC_SHARE_CHARGE);       //共享充电
 //    DelayMsWithNoneOs(900);
     printf("\r\n BspInit ok\n");
     printf("\n===========================================================\n\n\n");
 }
 
-void App_MainTask(void)
+
+int main(void)
 {
-    uint32_t NFCardTicks = GetTimeTicks();
+	uint32_t NFCardTicks = GetTimeTicks();
 	uint32_t HeartBeatTicks = NFCardTicks;
 	uint32_t ShakeHandTicks = NFCardTicks;
-    uint32_t RedLedTicks = NFCardTicks;
 	uint32_t GreenLedTicks = NFCardTicks;
 	uint32_t TimeFlagTicks = GetTimeTicks();
+//    int64_t timeaaa;
     
-	vTaskDelay(1000);
+	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
+    nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
+	
+    BspInit();
 	
 	while(1)
-	{
+    {
         FeedWatchDog();
-		vTaskDelay(500);
-        printf("\r\n BspInit ok\n");
-        
-        
+		//DelayMsWithNoneOs(50);
 		TimeFlagTicks = GetTimeTicks();
         {
         #if 1
-            if(((RedLedTicks + 5000) <= TimeFlagTicks) || (RedLedTicks > TimeFlagTicks))
-            {
-                CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
-                RedLedTicks = TimeFlagTicks;
-                RedLed();
-            }
-			
 			if(((GreenLedTicks + 500) <= GetTimeTicks()) || (GreenLedTicks > GetTimeTicks()))
             {
                 GreenLedTicks = GetTimeTicks();
                 GreenLed();
-			//	CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
-//			#if 0
-//				rtc_current_time_get(&GlobalInfo.RtcData);
-//				memset(&TimeTickss,0,sizeof(struct tm));
-//				TimeTickss.tm_year = GlobalInfo.RtcData.rtc_year + 1992;
-//				TimeTickss.tm_mon = GlobalInfo.RtcData.rtc_month + 9;
-//				TimeTickss.tm_mday = GlobalInfo.RtcData.rtc_date ;
-//				TimeTickss.tm_wday = GlobalInfo.RtcData.rtc_day_of_week;
-//				TimeTickss.tm_hour = GlobalInfo.RtcData.rtc_hour;
-//				TimeTickss.tm_min = GlobalInfo.RtcData.rtc_minute;
-//				TimeTickss.tm_sec = GlobalInfo.RtcData.rtc_second;
-//                timeaaa = mktime(&TimeTickss);
-//			#endif
-//                CL_LOG("时间戳[%d]\n", timeaaa);
+                CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
+//                #if 1
+//                timeaaa = GetRtcTimeStamp();
+//                timeaaa = ((long long)(RTC_TIMER_STAMEP) + timeaaa);
+//                #endif
+//                CL_LOG("时间戳[%d]\n", (uint32_t)timeaaa);
             }
-	
-//            
+            
 			if(((NFCardTicks + 500) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks))
             {
                 NFCardTicks = TimeFlagTicks;
@@ -155,34 +136,6 @@ void App_MainTask(void)
 		#endif
         }
     }
-}
-
-void start_task(void *pvParameters)
-{
-    BspInit();
-	xTaskCreate((TaskFunction_t)App_MainTask,   "MainTask", 	384, NULL, 2, NULL);
-//	xTaskCreate((TaskFunction_t)ComTask,		"ComTask", 	    384, NULL, 6, NULL); 
-	
-//	vTaskDelete(NULL);
-    while(1)
-	{
-        FeedWatchDog();
-		vTaskDelay(500);
-        printf("\r\n qqqqqqqqqq ok\n");
-    }
-}
-
-int main(void)
-{
-	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
-    nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
-	
-	//创建开始任务
-	xTaskCreate((TaskFunction_t)start_task, "start_task", 128, NULL, 1, NULL);  
-
-	vTaskStartScheduler();          //开启任务调度
-
-	for(;;);
 }
 
 

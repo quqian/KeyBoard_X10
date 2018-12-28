@@ -10,20 +10,20 @@
 
 
 //NSS
-#define  SPI_NSS_LOW() 				gpio_bit_reset(GPIOA, GPIO_PIN_4);
-#define  SPI_NSS_HIGH() 			gpio_bit_set(GPIOA, GPIO_PIN_4)
+#define  SPI_NSS_LOW() 				gpio_bit_reset(GPIOA, GPIO_PIN_15);
+#define  SPI_NSS_HIGH() 			gpio_bit_set(GPIOA, GPIO_PIN_15)
 //CPND
-#define NPD_LOW()       			gpio_bit_reset(GPIOA, GPIO_PIN_0)		//CPDN	//RST
-#define NPD_HIGH()      			gpio_bit_set(GPIOA, GPIO_PIN_0)			//CPDN	//RST	
+#define NPD_LOW()       			gpio_bit_reset(GPIOF, GPIO_PIN_6)		//CPDN	//RST
+#define NPD_HIGH()      			gpio_bit_set(GPIOF, GPIO_PIN_6)			//CPDN	//RST	
 
 //clock
-#define SPI_CLK_LOW()   			gpio_bit_reset(GPIOA, GPIO_PIN_5)		//CSCK
-#define SPI_CLK_HIGH()  			gpio_bit_set(GPIOA, GPIO_PIN_5)			//CSCK
+#define SPI_CLK_LOW()   			gpio_bit_reset(GPIOB, GPIO_PIN_3)		//CSCK
+#define SPI_CLK_HIGH()  			gpio_bit_set(GPIOB, GPIO_PIN_3)			//CSCK
 //master out
-#define SPI_MOSI_LOW()   			gpio_bit_reset(GPIOA, GPIO_PIN_7)
-#define SPI_MOSI_HIGH()  			gpio_bit_set(GPIOA, GPIO_PIN_7)
+#define SPI_MOSI_LOW()   			gpio_bit_reset(GPIOB, GPIO_PIN_5)
+#define SPI_MOSI_HIGH()  			gpio_bit_set(GPIOB, GPIO_PIN_5)
 //MISO
-#define SPI_MISO_READ() 			gpio_input_bit_get(GPIOA, GPIO_PIN_6)
+#define SPI_MISO_READ() 			gpio_input_bit_get(GPIOB, GPIO_PIN_4)
 
 //#define FM1752_CIRQ_LOW()    		gpio_bit_reset(GPIOA, GPIO_PIN_1)
 //#define FM1752_CIRQ_HIGH()     		gpio_bit_set(GPIOA, GPIO_PIN_1)

@@ -19,14 +19,24 @@ __IO UART_BUFF_STR UARTx_RxBuff[UART_COM_NUM] = {0,};
 
 UART_INFO_STR UartPortHandleInfo[UART_COM_NUM] = {0,};
 
-uint32_t USARTX[UART_COM_NUM] = 			{USART0, 		USART1};
-rcu_periph_enum RCU_GPIOX[UART_COM_NUM] = 	{RCU_GPIOA,     RCU_GPIOA};
-rcu_periph_enum RCU_USARTX[UART_COM_NUM] = {RCU_USART0,    RCU_USART1};
-uint32_t RCU_USART_TX_PORT[UART_COM_NUM] = {GPIOA,         GPIOA};
-uint32_t RCU_USART_RX_PORT[UART_COM_NUM] = {GPIOA,         GPIOA};
+//uint32_t USARTX[UART_COM_NUM] = 			{USART0, 		USART1};
+//rcu_periph_enum RCU_GPIOX[UART_COM_NUM] = 	{RCU_GPIOA,     RCU_GPIOA};
+//rcu_periph_enum RCU_USARTX[UART_COM_NUM] = {RCU_USART0,    RCU_USART1};
+//uint32_t RCU_USART_TX_PORT[UART_COM_NUM] = {GPIOA,         GPIOA};
+//uint32_t RCU_USART_RX_PORT[UART_COM_NUM] = {GPIOA,         GPIOA};
 
-uint32_t GPIO_PIN_TX[UART_COM_NUM] = 		{GPIO_PIN_9,  	GPIO_PIN_2};
-uint32_t GPIO_PIN_RX[UART_COM_NUM] = 		{GPIO_PIN_10, 	GPIO_PIN_3};
+//uint32_t GPIO_PIN_TX[UART_COM_NUM] = 		{GPIO_PIN_9,  	GPIO_PIN_2};
+//uint32_t GPIO_PIN_RX[UART_COM_NUM] = 		{GPIO_PIN_10, 	GPIO_PIN_3};
+
+
+uint32_t USARTX[UART_COM_NUM] = 			{USART0, 		USART1};
+rcu_periph_enum RCU_GPIOX[UART_COM_NUM] = 	{RCU_GPIOB,     RCU_GPIOA};
+rcu_periph_enum RCU_USARTX[UART_COM_NUM] = {RCU_USART0,    RCU_USART1};
+uint32_t RCU_USART_TX_PORT[UART_COM_NUM] = {GPIOB,         GPIOA};
+uint32_t RCU_USART_RX_PORT[UART_COM_NUM] = {GPIOB,         GPIOA};
+
+uint32_t GPIO_PIN_TX[UART_COM_NUM] = 		{GPIO_PIN_6,  	GPIO_PIN_2};
+uint32_t GPIO_PIN_RX[UART_COM_NUM] = 		{GPIO_PIN_7, 	GPIO_PIN_3};
 
 uint8_t UARTx_IRQn[UART_COM_NUM] = 		{USART0_IRQn, 	USART1_IRQn};
 
@@ -45,7 +55,7 @@ int fputc(int ch, FILE *f)
 #else
 {
     FeedWatchDog();
-    ///GlobalInfo.UpperMonitorTestFlag = 0xa5;
+    GlobalInfo.UpperMonitorTestFlag = 0xa5;
     if(0xa5 == GlobalInfo.UpperMonitorTestFlag)
 	{
 		VirtualUartByteSend(ch);
@@ -204,7 +214,7 @@ void IRQHandler(void)
 }
 
 
-#define  IRQ_HANDLER            1
+#define  IRQ_HANDLER            0
 void USART0_IRQHandler(void)
 {
 #if IRQ_HANDLER

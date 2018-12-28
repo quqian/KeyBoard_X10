@@ -23,9 +23,9 @@
 
 
 
-#define FW_VERSION                      0
-#define FW_VERSION_SUB1                 4
-#define FW_VERSION_SUB2                 4
+#define FW_VERSION                      2		//正式版本时只改主版本
+#define FW_VERSION_SUB1                 0
+#define FW_VERSION_SUB2                 0
 
 
 #define FLASH_SIZE                      128     //设备flash大小128K
@@ -54,10 +54,10 @@
 #define Feed_WDT						FeedWatchDog
 
 
-
+#define RTC_TIMER_STAMEP                ((long long)(3152966400))
 
 #define CL_LOG(fmt,args...) do {    \
-    printf("[U8 %s] %s:(%d) " fmt, GetCurrentTime(), __func__, __LINE__, ##args); \
+    printf("[X10KB %s] %s:(%d) " fmt, GetCurrentTime(), __func__, __LINE__, ##args); \
 }while(0)
 
 

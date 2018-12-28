@@ -52,7 +52,7 @@ int SimuUartSendData(SIM_UART_STR *pSimUart, const uint8_t *pData, uint16_t len)
 	#if 0
     while (pSimUart->sendCnt < pSimUart->allCnt)	
 	{
-		Delay100Us();	//
+		DelayUs(30);	//
         Feed_WDT();
         if ((waitCnt < ++cnt) || (0xa5 == pSimUart->VirtualSendFlag))
 		{
@@ -68,10 +68,10 @@ int SimuUartSendData(SIM_UART_STR *pSimUart, const uint8_t *pData, uint16_t len)
 
 void SimUartGPIOInit (void)
 {
-	rcu_periph_clock_enable(RCU_GPIOB);
+	rcu_periph_clock_enable(RCU_GPIOC);
     
-	gpio_mode_set(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO_PIN_1);
-	gpio_output_options_set(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,GPIO_PIN_1);
+	gpio_mode_set(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO_PIN_13);
+	gpio_output_options_set(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ,GPIO_PIN_13);
 }
 
 
