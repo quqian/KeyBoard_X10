@@ -1,4 +1,6 @@
 #include "m1_card.h"
+#include "usart.h"
+
 
 /****************************************************************************************/
 /*Ãû³Æ£ºTypeA_Request																	*/
@@ -329,15 +331,19 @@ unsigned char TypeA_Halt(void) {
 /****************************************************************************************/
 unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, unsigned char *pSak) 
 {
-    unsigned char   result;
+    uint8_t result;
 
     result = TypeA_Request(pTagType);//Ñ°¿¨ Standard	 send request command Standard mode
     
+//    PrintfData("pTagType:", pTagType, 2);
     if (result != OK) 
     {
+//    	CL_LOG("FM17520_ERROR.\n");
         return FM17520_ERROR;
     }
-    if (pTagType[1] != 0x00) {
+    if (pTagType[1] != 0x00) 
+	{
+//		CL_LOG("FM17520_ERROR.\n");
         return FM17520_ERROR;
     }
     if ((pTagType[0] & 0xC0) == 0x00)   //M1¿¨

@@ -510,7 +510,8 @@ void FM175XX_Config(void)
 		if(FM175XX_Init() == CL_OK)
 	    {
 	    	FeedWatchDog();
-			GlobalInfo.card_state = 0xa5;
+//			GlobalInfo.card_state = 0xa5;
+			SystemStatus.card_state = 0;
 			CL_LOG("FM175XX_Init OK.\r\n");
 			break;
 		}
@@ -518,7 +519,8 @@ void FM175XX_Config(void)
 	    {
 	    	FeedWatchDog();
 	    	timesFlag++;
-			GlobalInfo.card_state = 1;
+//			GlobalInfo.card_state = 1;
+			SystemStatus.card_state = 1;
 			CL_LOG("FM175XX_Init error.\r\n");
 			if(50 <= timesFlag)
 			{

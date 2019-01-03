@@ -64,16 +64,75 @@ int BswDrv_FM175XX_SetPowerDown(uint8_t mode)
 
 
 //读卡处理
-void Check_M1_Card()
-#if 0
+void Check_M1_Card(void)
+#if 1
+{
+    //卡类型标志、卡UID、掩码
+    uint8_t PICC_ATQA[2], PICC_SAK[3], PICC_UID[4];
+    uint8_t result = 0;
+    
+    if (cardFlag == 1)
+    {
+        if ((TypeA_CardActivate(PICC_ATQA, PICC_UID, PICC_SAK) == OK))
+        {
+            PrintfData("PICC_UID:", PICC_UID,4);
+            PrintfData("PICC_ATQA1:", PICC_ATQA,2);
+			ReadCardTicks = GetTimeTicks();
+            cardFlag = 0;
+            
+         //   if(PICC_ATQA[0] == 0x04)  //M1卡
+            {
+                //密码认证
+                //KEY1认证成功---密钥卡
+                if((Mifare_Auth(0, 2, SecretCardKEY_A, PICC_UID) == OK))
+                {
+                    result++;
+                    CL_LOG("result = %d \n", result);
+                    CL_LOG("this is SecretCard.\n");
+                    CardTypeUpLoad(1, PICC_UID);
+                    //Debug_Log("密钥卡扇区2.\n");
+                }
+                TypeA_Halt();
+                if(0 < result)  //否则是非密钥卡
+                {
+                    return;
+                }
+            }
+            if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
+            {
+                ReadCardTicks = GetTimeTicks();
+                cardFlag = 0;
+             //   if(PICC_ATQA[0]==0x04)  //M1卡
+                {
+                    if(Mifare_Auth(0, (ENTRANCE_GUARD_CARD_SECTOR_OFFSET + 2), SecretCardKEY_A,PICC_UID) == OK)
+                    {
+                        result++;
+                        CL_LOG("result = %d \n", result);
+
+                        CardTypeUpLoad(1,PICC_UID);
+                        //Debug_Log("密钥卡扇区12.\n");
+                    }
+                    else if(0 == result)  //否则是非密钥卡
+                    {
+						CL_LOG("非密钥卡\n");
+                        CardTypeUpLoad(2,PICC_UID);
+                    }
+                    TypeA_Halt();
+                    return;
+                }
+            }
+        }
+    }
+}
+#else
 {
 	uint8_t PICC_ATQA[2],PICC_SAK[3],PICC_UID[4];
 	uint8_t pCardId[8];
 	
 	if (TypeA_CardActivate(PICC_ATQA, PICC_UID, PICC_SAK) == OK)
 	{
-//		PrintfData("PICC_UID:",PICC_UID,4);
-//        PrintfData("PICC_ATQA1:",PICC_ATQA,2);
+		PrintfData("PICC_UID:", PICC_UID,4);
+        PrintfData("PICC_ATQA1:", PICC_ATQA,2);
 		//密钥卡
 		if(Mifare_Auth(0, 2, SecretCardKEY_A, PICC_UID) == OK)
         {
@@ -179,67 +238,6 @@ void Check_M1_Card()
 		
 		TypeA_Halt();
 	}
-}
-#else
-{
-    //卡类型标志、卡UID、掩码
-    uint8_t PICC_ATQA[2], PICC_SAK[3], PICC_UID[4];
-    uint8_t result = 0;
-
-    if ((cardFlag == 1))
-    {
-        if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
-        {
-			ReadCardTicks = GetTimeTicks();
-            cardFlag = 0;
-            CL_LOG("读卡 UID1.\n");
-            if(PICC_ATQA[0]==0x04)  //M1卡
-            {
-                //Debug_Log("read card ID3:");
-                //Debug_Hex(PICC_UID,4);
-                //Debug_Log("\r\n");
-
-                //密码认证
-                //KEY1认证成功---密钥卡
-                if((Mifare_Auth(0, 2, SecretCardKEY_A, PICC_UID) == OK))
-                {
-                    result++;
-                    CL_LOG("读卡2 result = %d \n", result);
-
-                    CardTypeUpLoad(1, PICC_UID);
-                    //Debug_Log("密钥卡扇区2.\n");
-                }
-                TypeA_Halt();
-                if(0 < result)  //否则是非密钥卡
-                {
-                    return;
-                }
-            }
-            if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
-            {
-                ReadCardTicks = GetTimeTicks();
-                cardFlag = 0;
-                if(PICC_ATQA[0]==0x04)  //M1卡
-                {
-                    if(Mifare_Auth(0, (ENTRANCE_GUARD_CARD_SECTOR_OFFSET + 2), SecretCardKEY_A,PICC_UID) == OK)
-                    {
-                        result++;
-                        CL_LOG("读卡12 result = %d \n", result);
-
-                        CardTypeUpLoad(1,PICC_UID);
-                        //Debug_Log("密钥卡扇区12.\n");
-                    }
-                    else if(0 == result)  //否则是非密钥卡
-                    {
-                        CL_LOG("非密钥卡.\n");
-                        CardTypeUpLoad(2,PICC_UID);
-                    }
-                    TypeA_Halt();
-                    return;
-                }
-            }
-        }
-    }
 }
 #endif
 

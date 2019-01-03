@@ -210,7 +210,7 @@ int SyncSystemInfo(void)
 	CB_STR_t * pBuff = (void*)FrameBuff;
 	SYSTEM_INFO_T* SystemInfoAck = (SYSTEM_INFO_T*)pBuff->data;
 
-	memcpy(&SystemInfoAck->soft_version, &SystemInfo, sizeof(SystemInfo));
+	memcpy(&SystemInfoAck, &SystemInfo, sizeof(SystemInfo));
     App_CB_SendData(pBuff, sizeof(SYSTEM_INFO_T), MsgType_ALL, CMD_UP_SYSTEM_INFO);
 //	PrintfData("SyncSystemInfo", (uint8_t*)pBuff, sizeof(SYSTEM_INFO_T) + sizeof(CB_HEAD_STR) + 2);
     

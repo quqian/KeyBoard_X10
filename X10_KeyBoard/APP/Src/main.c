@@ -78,6 +78,7 @@ int main(void)
 {
 	uint32_t NFCardTicks = GetTimeTicks();
 	uint32_t GreenLedTicks = NFCardTicks;
+    uint32_t GetKeyTicks = NFCardTicks;
 	uint32_t TimeFlagTicks = GetTimeTicks();
 	uint32_t SystemTimerTicks = NFCardTicks;
 	uint32_t SystemStatusTicks = NFCardTicks;
@@ -85,7 +86,7 @@ int main(void)
 	ReadCardTicks = NFCardTicks;
 //    int64_t timeaaa;
     
-	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
+//	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
 	
     BspInit();
@@ -107,26 +108,31 @@ int main(void)
                 timeaaa = ((long long)(RTC_TIMER_STAMEP) + timeaaa);
                 CL_LOG("时间戳[%d]\n", (uint32_t)timeaaa);
                 #endif
-                GetKey();
             }
 			
+            if(((GetKeyTicks + 350) <= GetTimeTicks()) || (GetKeyTicks > GetTimeTicks()))
+            {
+                GetKeyTicks = GetTimeTicks();
+                GetKey();
+            }
+            
 			//处理通信数据
             ComRecvMainBoardData();
 
-			if(((NFCardTicks + 500) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks))
+			if((((NFCardTicks + 1000) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks)) && (0 == SystemStatus.card_state))
             {
                 NFCardTicks = TimeFlagTicks;
 				if(GlobalInfo.UpgradeFlag != 0xa5)
 				{
-					if(CL_OK == BswDrv_FM175XX_SetPowerDown(0)) 	//退出睡眠
+					//if(CL_OK == BswDrv_FM175XX_SetPowerDown(0)) 	//退出睡眠
 					{
 						NFCardTask();
 					}
 				}
-                BswDrv_FM175XX_SetPowerDown(1);			//进入睡眠
+             //   BswDrv_FM175XX_SetPowerDown(1);			//进入睡眠
                 FeedWatchDog();
             }
-            if(((ReadCardTicks + 5000) <= TimeFlagTicks) || (ReadCardTicks > TimeFlagTicks))
+            if(((ReadCardTicks + 4000) <= TimeFlagTicks) || (ReadCardTicks > TimeFlagTicks))
             {
                 ReadCardTicks = TimeFlagTicks;
 				cardFlag = 1;

@@ -29,10 +29,10 @@ typedef struct
 
 typedef struct
 {
-    unsigned char system_state;
-    unsigned char blue_state;
-    unsigned char card_state;
-    unsigned char key_state;
+    unsigned char system_state;					//没有使用
+    unsigned char blue_state;					//
+    unsigned char card_state;					//读卡器状态  0 :表示初始化ok 1: 表示初始化出错
+    unsigned char key_state;					//没有使用
 }SYSTEM_STATUS_T;
 
 typedef struct{
@@ -45,7 +45,7 @@ typedef struct
 {
 	uint8_t  current_usr_card_id[16];       	//刷卡获取的卡号
 	uint8_t  card_id[5];       			//刷卡获取的卡号
-	uint8_t card_state;                         //读卡器状态  0 :表示初始化ok 1: 表示初始化出错
+//	uint8_t card_state;                         //读卡器状态  0 :表示初始化ok 1: 表示初始化出错
 	uint8_t ReadCardFlag;
 	uint8_t WifiInitOK;
 	uint8_t gWifiSendMux;
