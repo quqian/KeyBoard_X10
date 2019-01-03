@@ -114,12 +114,10 @@ void DebugPktProc(OUT_PKT_STR *pBuff, uint16_t len)
 			{
 				pBuff->data[1] = (uint8_t)FW_VERSION;
 				pBuff->data[2] = (uint8_t)FW_VERSION_SUB1;
-				pBuff->data[3] = (uint8_t)FW_VERSION_SUB2;
-                
-				CL_LOG("°æ±¾ºÅ[%d.%d,%d]\n", pBuff->data[1], pBuff->data[2], pBuff->data[3]);
+				CL_LOG("°æ±¾ºÅ[%d.%d]\n", pBuff->data[1], pBuff->data[2]);
 			}
 			
-			dataLen = 4;
+			dataLen = 3;
 		break;
         case DEBUG_CMD_REBOOT:
 			pBuff->data[0] = 0;
@@ -270,7 +268,7 @@ void DebugRecvProc(void)
 	                if (sum == data) 
 					{
 	                    PrintfData("DebugRecvProc", pBuff, pktLen);
-	                    SystemInfo.printfSwitch = 0;
+	                    SaveInfo.printfSwitch = 0;
 	                    DebugPktProc((OUT_PKT_STR*)pBuff, pktLen);
 	                }
 					else

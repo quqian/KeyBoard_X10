@@ -401,7 +401,7 @@ void SpeechChargeing(uint8_t id)
 	Sc8042bSpeech(VOIC_STOP_CHARGER_TIP);
 }
 
-
+#if 0
 void SC8042B_Init(void)
 {
 	rcu_periph_clock_enable(RCU_GPIOB);
@@ -422,5 +422,6 @@ void SC8042B_Init(void)
     AU_DATA_LOW();
     AU_RST_DIS();
 }
+#endif
 
 

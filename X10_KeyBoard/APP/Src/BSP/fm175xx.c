@@ -103,7 +103,7 @@ unsigned char Clear_FIFO(void)
 	}
     else
 	{
-		return ERROR;
+		return FM17520_ERROR;
 	}
 }
 
@@ -125,7 +125,7 @@ unsigned char Clear_BitMask(unsigned char reg_add, unsigned char mask)
                         mask，寄存器置位
 ** output parameters:   None
 ** Returned value:	  OK
-				        ERROR
+				        FM17520_ERROR
 ** Author:              quqian
 *****************************************************************************/
 unsigned char Set_BitMask(unsigned char reg_add, unsigned char mask) 
@@ -148,7 +148,7 @@ unsigned char Set_BitMask(unsigned char reg_add, unsigned char mask)
             				3，TX1，TX2打开输出，TX2为反向输出
 ** output parameters:   None
 ** Returned value:	  OK
-				        ERROR
+				        FM17520_ERROR
 ** Author:              quqian
 *****************************************************************************/
 uint8_t Set_Rf(unsigned char mode) 
@@ -223,7 +223,7 @@ uint8_t Pcd_SetTimer(unsigned long delaytime)//设定超时时间（ms）
             				pOutLenBit，接收数据的位长度
 ** output parameters:   None
 ** Returned value:	  OK
-                        ERROR
+                        FM17520_ERROR
 ** Author:              quqian
 *****************************************************************************/
 uint8_t Pcd_Comm(uint8_t Command,
@@ -457,7 +457,7 @@ uint8_t FM175XX_HardReset(void)
 	}
     else
 	{
-		return ERROR;
+		return FM17520_ERROR;
 	}
 }
 

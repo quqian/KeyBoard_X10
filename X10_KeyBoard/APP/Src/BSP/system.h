@@ -16,6 +16,10 @@ typedef struct
 {
     uint32_t magic_number;
 	uint8_t printfSwitch;
+}SAVE_INFO_T;
+
+typedef struct
+{
 	unsigned char soft_version;
     unsigned char blue_state;
     unsigned char blue_version[20];
@@ -75,6 +79,7 @@ extern uint32_t GetTimeTicks(void);
 
 
 
+extern SAVE_INFO_T		SaveInfo;
 extern SYSTEM_INFO_T	SystemInfo;
 extern SYSTEM_STATUS_T	SystemStatus;
 extern GLOBAL_INFO_T	GlobalInfo;

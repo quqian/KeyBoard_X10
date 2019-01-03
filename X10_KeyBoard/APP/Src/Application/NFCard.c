@@ -8,6 +8,8 @@
 #include "ComProto.h"
 
 
+extern uint8_t cardFlag;
+extern uint32_t ReadCardTicks;
 
 #define USER_NFC_CARD     			0
 
@@ -21,7 +23,7 @@
 #define BLOCK_BAK					9
 
 static unsigned char SecretCardKEY_A[6] = {'6', 'f', '7', 'd', '2', 'k'};
-static unsigned char SeedKeyA[16]="chargerlink1234";
+uint8_t SeedKeyA[16] = "chargerlink1234";
 
 
 /**
@@ -60,19 +62,20 @@ int BswDrv_FM175XX_SetPowerDown(uint8_t mode)
     return CL_OK;
 }
 
+
 //∂¡ø®¥¶¿Ì
 void Check_M1_Card()
+#if 0
 {
-#if 1
 	uint8_t PICC_ATQA[2],PICC_SAK[3],PICC_UID[4];
 	uint8_t pCardId[8];
 	
-	if (TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK)
+	if (TypeA_CardActivate(PICC_ATQA, PICC_UID, PICC_SAK) == OK)
 	{
 //		PrintfData("PICC_UID:",PICC_UID,4);
 //        PrintfData("PICC_ATQA1:",PICC_ATQA,2);
 		//√‹‘øø®
-		if(Mifare_Auth(0,2,SecretCardKEY_A,PICC_UID) == OK)
+		if(Mifare_Auth(0, 2, SecretCardKEY_A, PICC_UID) == OK)
         {
 			CL_LOG("this is SecretCard.\n");
 			//Sc8042bSpeech(VOIC_CARD);
@@ -176,16 +179,76 @@ void Check_M1_Card()
 		
 		TypeA_Halt();
 	}
-#endif
 }
-
-
-
-void ReadCardHandle(void)
+#else
 {
+    //ø®¿‡–Õ±Í÷æ°¢ø®UID°¢—⁄¬Î
+    uint8_t PICC_ATQA[2], PICC_SAK[3], PICC_UID[4];
+    uint8_t result = 0;
+
+    if ((cardFlag == 1))
+    {
+        if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
+        {
+			ReadCardTicks = GetTimeTicks();
+            cardFlag = 0;
+            CL_LOG("∂¡ø® UID1.\n");
+            if(PICC_ATQA[0]==0x04)  //M1ø®
+            {
+                //Debug_Log("read card ID3:");
+                //Debug_Hex(PICC_UID,4);
+                //Debug_Log("\r\n");
+
+                //√‹¬Î»œ÷§
+                //KEY1»œ÷§≥…π¶---√‹‘øø®
+                if((Mifare_Auth(0, 2, SecretCardKEY_A, PICC_UID) == OK))
+                {
+                    result++;
+                    CL_LOG("∂¡ø®2 result = %d \n", result);
+
+                    CardTypeUpLoad(1, PICC_UID);
+                    //Debug_Log("√‹‘øø®…»«¯2.\n");
+                }
+                TypeA_Halt();
+                if(0 < result)  //∑Ò‘Ú «∑«√‹‘øø®
+                {
+                    return;
+                }
+            }
+            if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
+            {
+                ReadCardTicks = GetTimeTicks();
+                cardFlag = 0;
+                if(PICC_ATQA[0]==0x04)  //M1ø®
+                {
+                    if(Mifare_Auth(0, (ENTRANCE_GUARD_CARD_SECTOR_OFFSET + 2), SecretCardKEY_A,PICC_UID) == OK)
+                    {
+                        result++;
+                        CL_LOG("∂¡ø®12 result = %d \n", result);
+
+                        CardTypeUpLoad(1,PICC_UID);
+                        //Debug_Log("√‹‘øø®…»«¯12.\n");
+                    }
+                    else if(0 == result)  //∑Ò‘Ú «∑«√‹‘øø®
+                    {
+                        CL_LOG("∑«√‹‘øø®.\n");
+                        CardTypeUpLoad(2,PICC_UID);
+                    }
+                    TypeA_Halt();
+                    return;
+                }
+            }
+        }
+    }
+}
+#endif
+
+void NFCardTask(void)
+{
+	FeedWatchDog();
     //∂¡ø®¥¶¿Ì
     Check_M1_Card();
-
+#if 0
 	if((GlobalInfo.ReadCardFlag == 0xa5))
 	{
         FeedWatchDog();
@@ -203,16 +266,11 @@ void ReadCardHandle(void)
 	    	{
 	        	GlobalInfo.ReportTicks = GetTimeTicks();
 				Sc8042bSpeech(VOIC_READING_CARD);
-	            SwipeCardReadCard();
+	      //      SwipeCardReadCard();
 	        }
 		}
 	}
-}
-
-void NFCardTask(void)
-{
-	FeedWatchDog();
-    ReadCardHandle();
+#endif
 }
 
 

@@ -174,145 +174,347 @@ void App_CB_SendData(CB_STR_t *ptk,uint16_t len, uint8_t  module, uint8_t  cmd)
 	UsartSend(RS232_INDEX, (void*)ptk, sizeof(CB_HEAD_STR) + len + 1);
 }
 
-int BasicInfoShakeHand(void)
+//发送响应消息
+int SendMsg_ACK(uint8_t type, uint8_t cmd, uint8_t result)
 {
 	uint8_t FrameBuff[128] = {0,};
 	CB_STR_t * pBuff = (void*)FrameBuff;
-	SHAKE_HAND_STR* ShakeHand = (SHAKE_HAND_STR*)pBuff->data;
+	REPORT_INFO_ACK_STR* ShakeHandAck = (REPORT_INFO_ACK_STR*)pBuff->data;
 
-	ShakeHand->fw_verson = FW_VERSION;
-	if(0xa5 == GlobalInfo.card_state)
-	{
-		ShakeHand->cardState = 1;
-	}
-	else
-	{
-		ShakeHand->cardState = 0;
-	}
-    ShakeHand->TimeStamp = 0;
-#if 1
-    ShakeHand->TimeStamp = GetRtcTimeStamp();
-    ShakeHand->TimeStamp = (uint32_t)((RTC_TIMER_STAMEP) + ShakeHand->TimeStamp);
-#endif
+	ShakeHandAck->result = result;
 	
-	App_CB_SendData(pBuff, sizeof(SHAKE_HAND_STR), ENUM_MODUL_BASE, ENUM_SHAKE_HAND);
-	PrintfData("BasicInfoShakeHand", (uint8_t*)pBuff, sizeof(SHAKE_HAND_STR) + sizeof(CB_HEAD_STR) + 2);
+	App_CB_SendData(pBuff, sizeof(REPORT_INFO_ACK_STR), type, cmd);
+	PrintfData("SendMsg_ACK", (uint8_t*)pBuff, sizeof(REPORT_INFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
 	
     return CL_OK;
 }
 
-int BasicInfoShakeHandAck(CB_STR_t *pBuff, uint16_t len)
-{
-	SHAKE_HAND_ACK_STR* ShakeHandAck = (SHAKE_HAND_ACK_STR*)(pBuff->data);
-			
-	if(0 == ShakeHandAck->result)
-	{
-		GlobalInfo.ShakeHandState = 0xa5;
-		printf("收到主板握手应答!\r\n");
-	}
-    else
-	{
-		printf("主板握手应答, 错误!\r\n");
-	}
-	
-    return CL_OK;
-}
-
-int BasicInfoHeartBeat(void)
+//上报PCB编号
+int PCBBumUpLoad(uint8_t *pcb)
 {
 	uint8_t FrameBuff[128] = {0,};
 	CB_STR_t * pBuff = (void*)FrameBuff;
-	HEARTBAT_STR* HeartBeat = (HEARTBAT_STR*)pBuff->data;
+	PCB_INFO_STR* PcbAck = (PCB_INFO_STR*)pBuff->data;
 
-	if(0xa5 == GlobalInfo.card_state)
-	{
-		HeartBeat->cardState = 1;
-	}
-	else
-	{
-		HeartBeat->cardState = 0;
-	}
-	HeartBeat->TimerStamp = 0;
-#if 1
-    HeartBeat->TimerStamp = GetRtcTimeStamp();
-    HeartBeat->TimerStamp = (uint32_t)((RTC_TIMER_STAMEP) + HeartBeat->TimerStamp);
-#endif
-
-	App_CB_SendData(pBuff, sizeof(HEARTBAT_STR), ENUM_MODUL_BASE, ENUM_HEART_BEAT);
-	
-    return CL_OK;
+	memcpy(PcbAck->Pcb, pcb, 8);
+    App_CB_SendData(pBuff, sizeof(PCB_INFO_STR), MsgType_ALL, CMD_READ_PCB);
+	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(PCB_INFO_STR) + sizeof(CB_HEAD_STR) + 2);
+    
+    return 0;
 }
 
-int BasicInfoHeartBeatAck(CB_STR_t *pBuff, uint16_t len)
+//同步基本信息
+int SyncSystemInfo(void)
 {
-	HEARTBAT_ACK_STR* HeartBeatAck = (HEARTBAT_ACK_STR*)(pBuff->data);
-	
-	if(0 == HeartBeatAck->result)
-	{
-		printf("收到主板心跳应答!\r\n");
-        
-        if(0 != HeartBeatAck->TimerStamp)
-        {
-            SetRtcCount(HeartBeatAck->TimerStamp);
-        }
-	}
-	else
-	{
-		printf("主板心跳应答, 错误!\r\n");
-	}
-	
-    return CL_OK;
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	SYSTEM_INFO_T* SystemInfoAck = (SYSTEM_INFO_T*)pBuff->data;
+
+	memcpy(&SystemInfoAck->soft_version, &SystemInfo, sizeof(SystemInfo));
+    App_CB_SendData(pBuff, sizeof(SYSTEM_INFO_T), MsgType_ALL, CMD_UP_SYSTEM_INFO);
+//	PrintfData("SyncSystemInfo", (uint8_t*)pBuff, sizeof(SYSTEM_INFO_T) + sizeof(CB_HEAD_STR) + 2);
+    
+    return 0;
 }
+
+//状态同步
+int SyncSystemState(void)
+{
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	SYSTEM_STATUS_T* SystemStatusAck = (SYSTEM_STATUS_T*)pBuff->data;
+
+	memcpy(&SystemStatusAck->system_state, &SystemStatus, sizeof(SystemStatus));
+    App_CB_SendData(pBuff, sizeof(SYSTEM_STATUS_T), MsgType_ALL, CMD_UP_SYSTEM_STATE);
+//	PrintfData("SyncSystemState", (uint8_t*)pBuff, sizeof(SYSTEM_STATUS_T) + sizeof(CB_HEAD_STR) + 2);
+    
+    return 0;
+}
+
+//卡号上报
+int CardNumUpLoad(unsigned char result,unsigned char *cardNum)
+{
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	READ_CARDINFO_ACK_STR* CardAck = (READ_CARDINFO_ACK_STR*)pBuff->data;
+
+	CardAck->result = result;
+	memcpy(CardAck->Data, cardNum, 16);
+	
+    App_CB_SendData(pBuff, sizeof(READ_CARDINFO_ACK_STR), MsgType_CARD, CMD_CARD_READ);
+	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(READ_CARDINFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
+    
+    return 0;
+}
+
+//卡类型上报
+int CardTypeUpLoad(uint8_t cardType,uint8_t *serialNum)
+{
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	CARDINFO_STR* CardAck = (CARDINFO_STR*)pBuff->data;
+
+	CardAck->CardType = cardType;
+	memcpy(CardAck->CardSn, serialNum, 4);
+	
+    App_CB_SendData(pBuff, sizeof(CARDINFO_STR), MsgType_CARD, CMD_CARD_UP);
+	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(CARDINFO_STR) + sizeof(CB_HEAD_STR) + 2);
+    
+    return 0;
+}
+
+/*****************************************************************************
+** Function name:       WriteCardBlockSuccessUpLoad
+** Descriptions:        
+** input parameters:    None
+** output parameters:   None
+** Returned value:	  None
+** Author:              quqian
+*****************************************************************************/
+int WriteCardBlockSuccessUpLoad(uint8_t result)
+{	
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	WRITE_CARDINFO_ACK_STR* WriteCardAck = (WRITE_CARDINFO_ACK_STR*)pBuff->data;
+
+	WriteCardAck->result = result;
+	
+    App_CB_SendData(pBuff, sizeof(WRITE_CARDINFO_ACK_STR), MsgType_CARD, CMD_CARD_WRITE);
+	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(WRITE_CARDINFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
+    
+    return 0;
+}
+
 
 
 void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
 {
+	uint8_t pcb[8];
+	
     switch (pBuff->head.cmd) 
 	{
-		case ENUM_SHAKE_HAND:
-            //BasicInfoShakeHand(pBuff, len);
-			BasicInfoShakeHandAck(pBuff, len);
+		case CMD_UP_SYSTEM_INFO:
+			isSyncSystemInfo = 1;
+            CL_LOG("recv system info ack..\n");
+		return;
+		case CMD_SYSTEM_OPERATE:
+		{
+            SendMsg_ACK(MsgType_ALL, CMD_SYSTEM_OPERATE, 0);
+
+            //系统复位
+            if(pBuff->data[0] == 0x01)
+			{
+                CL_LOG("收到主板的复位系统请求.\n");
+                NVIC_SystemReset();
+            }
+            else if(pBuff->data[0] == 0x02)		//蓝牙复位
+			{
+                CL_LOG("BlueBluetooth_Reset req .\n");
+                //BlueBluetooth_Reset();
+            }
+            else if(pBuff->data[0] == 0x03)		//蓝牙广播开关
+			{
+               // SetBluePair(st.msg[1]);
+            }
+        }
+		return;
+		case CMD_UP_SYSTEM_STATE:
             return;
-		case ENUM_HEART_BEAT:
-            BasicInfoHeartBeatAck(pBuff, len);
+		case CMD_WRITE_PCB:		//写PCB
+			FlashWrite(PCB_INFO, &pBuff->data[0], 8);
+			SendMsg_ACK(MsgType_ALL, CMD_WRITE_PCB, 0);
             return;
+		case CMD_READ_PCB:		//读PCB
+            FlashReadByte(PCB_INFO, pcb, 8);
+            PCBBumUpLoad(pcb);
+            return;
+		default:
+            CL_LOG("错误.\n");
+		return;
 	}
 }
 
-int SwipeCardReadCard(void)
+#define M1_CARD_BLOCK_LENTH      16
+void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
 {
-	uint8_t FrameBuff[128] = {0,};
-	CB_STR_t * pBuff = (void*)FrameBuff;
-	READ_CARDINFO_STR* ReadCard = (READ_CARDINFO_STR*)pBuff->data;
-
-	ReadCard->cardType = 0;		//查看充电网M1操作规范
-	memcpy(ReadCard->cardId, GlobalInfo.current_usr_card_id, 16);
-
-	App_CB_SendData(pBuff, sizeof(READ_CARDINFO_STR), ENUM_MODUL_CARD, ENUM_READ_CARD);
-	printf("卡号上报!\r\n");
-
-    return CL_OK;
-}
-
-int SwipeCardReadCardAck(CB_STR_t *pBuff, uint16_t len)
-{
-	READ_CARDINFO_ACK_STR* ReadCardAck = (READ_CARDINFO_ACK_STR*)(pBuff->data);
+	uint8_t block_data[M1_CARD_BLOCK_LENTH] = {0,};
 	
-	if(0 == ReadCardAck->result)
+    switch (pBuff->head.cmd) 
 	{
-		printf("收到主板读卡应答!\r\n");
-		//Sc8042bSpeech(VOIC_CARD);
-		//DelayMsWithNoneOs(100);
-	}
-	else
-	{
-		printf("主板读卡应答, 错误!\r\n");
-		return CL_FAIL;
-	}
-    
-    return CL_OK;
-}
+		case CMD_CARD_UP:
+            if(pBuff->data[0] != 0)
+			{
+                TypeA_Halt();
+            }
+            return;
+		case CMD_CARD_READ:
+		{
+            #if 1
+            if(pBuff->head.len >= 8)
+            {
+                uint8_t keyA[6];
+                uint8_t sector ,block;
+//                uint8_t sectorBlock;
+                uint8_t PICC_ATQA1[2],PICC_SAK1[3],PICC_UID1[4];
 
+                memcpy(keyA, pBuff->data, 6);
+                //Debug_Log("密钥卡密钥\r\n");
+                PrintfData("keyA", keyA, 6);
+
+                sector = pBuff->data[6];
+                block = pBuff->data[7];
+//                sectorBlock = sector*4 + block;
+                CL_LOG("寻卡\r\n");
+                //寻卡
+                if (TypeA_CardActivate(PICC_ATQA1, PICC_UID1, PICC_SAK1) != OK)
+                {
+                    TypeA_Halt();
+                    CardNumUpLoad(1, block_data);
+                    CL_LOG("Card Author failed.\r\n");
+                    return;
+                }
+                //Debug_Log("寻卡通过\r\n");
+                //Debug_Log("PICC_ATQA1:");
+                //Debug_Hex(PICC_ATQA1,2);
+                //Debug_Log("\r\n");
+                ////M1卡
+                if(PICC_ATQA1[0]!=0x04)
+                {
+                    TypeA_Halt();
+                    CardNumUpLoad(1, block_data);
+                    CL_LOG("Card Author failed.\r\n");
+                    return;
+                }
+
+                //Debug_Log("密码认证\r\n");
+                //密码认证
+                if(Mifare_Auth(0, sector, keyA, PICC_UID1) != CL_OK)
+                {
+                    TypeA_Halt();
+                    CardNumUpLoad(1, block_data);
+                    CL_LOG("Card Author failed.\r\n");
+                    return;
+                }
+                //Debug_Log("密码认证通过\r\n");
+
+                //Debug_Log("读块");
+                //Debug_Hex(&sectorBlock, 1);
+                //Debug_Log("数据\r\n");
+                //读数据块
+                if(Mifare_Blockread(sector*4+block, block_data) != OK)
+                {
+                    TypeA_Halt();
+                    CardNumUpLoad(1,block_data);
+                    CL_LOG("Card Author failed.\r\n");
+                    return;
+                }
+                //Debug_Log("读块");
+                //Debug_Hex(&sectorBlock, 1);
+                //Debug_Log("数据通过\r\n");
+
+                //Debug_Log("读数据块:");
+                //Debug_Hex(&sectorBlock, 1);
+                //Debug_Log(":");
+                //Debug_Hex(&block_data[0], 16);
+                //Debug_Log("\r\n");
+
+                //上传数据
+                CardNumUpLoad(0,&block_data[0]);
+                TypeA_Halt();
+            }
+            #endif
+		}
+		return;
+		case CMD_CARD_WRITE:
+		{
+            #if 1
+            uint8_t keyA[6];
+            uint8_t sector ,block, sectorBlock;
+            uint8_t PICC_ATQA1[2], PICC_SAK1[3], PICC_UID1[4];
+
+            memcpy(keyA, pBuff->data, 6);
+
+            sector = pBuff->data[6];
+            block = pBuff->data[7];
+
+            sectorBlock = sector*4 + block;
+            //Debug_Log("写卡keyA :");
+            //Debug_Hex(&keyA[0], 6);
+            //Debug_Log("\r\n");
+
+            ///Debug_Log("写shuju到卡数据 :");
+            //Debug_Hex(&st.msg[0],16+8);
+            //Debug_Log("\r\n");
+
+            CL_LOG("写卡寻卡\r\n");
+            TypeA_Halt();
+            //寻卡
+            if (TypeA_CardActivate(PICC_ATQA1,PICC_UID1,PICC_SAK1) != CL_OK)
+            {
+                CL_LOG("WRITE failed.\r\n");
+                TypeA_Halt();
+                WriteCardBlockSuccessUpLoad(WRITE_ERROR);
+                return;
+            }
+            //Debug_Log("写卡寻卡通过\r\n");
+            //Debug_Log("写卡密码认证 \r\n");
+            //密码认证
+            if(Mifare_Auth(0, sector, keyA, PICC_UID1) != OK)
+            {
+                CL_LOG("WRITE failed.\r\n");
+                TypeA_Halt();
+                WriteCardBlockSuccessUpLoad(WRITE_ERROR);
+                return;
+            }
+            //Debug_Log("写卡密码认证通过\r\n");
+
+           // Debug_Log("写卡数据到块");
+            //Debug_Hex(&sectorBlock,1);
+            //Debug_Log("\r\n");
+
+            //Debug_Log("写到卡数据 :");
+            //Debug_Hex(((WRITE_CARD_REQ_STR*)st.msg)->blockData,16);
+            //Debug_Log("\r\n");
+            switch(sectorBlock)
+            {
+                case 8:
+                    //Debug_Log("写块8校验\r\n");
+                    if(((WRITE_CARDINFO_STR*)pBuff->data)->blockData[15] == GetPktSum(&((WRITE_CARDINFO_STR*)pBuff->data)->blockData[0], 15))
+                    {
+                        //Debug_Log("写卡块8校验通过\r\n");
+                        //Debug_Log("写卡块8\r\n");
+                        if(OK != Mifare_Blockwrite(8, &((WRITE_CARDINFO_STR*)pBuff->data)->blockData[0]))
+                        {
+                            CL_LOG("写卡块8失败\r\n");
+                            WriteCardBlockSuccessUpLoad(WRITE_ERROR);
+                        }
+                        else{
+                            //Debug_Log("写卡块8成功\r\n");
+                            WriteCardBlockSuccessUpLoad(WRITE_SUCCESS);
+                        }
+                    }
+                break;
+                default:
+                    if(OK != Mifare_Blockwrite(sectorBlock, &((WRITE_CARDINFO_STR*)pBuff->data)->blockData[0]))
+                    {
+                        CL_LOG("写卡块x失败\r\n");
+                        WriteCardBlockSuccessUpLoad(WRITE_ERROR);
+                    }
+                    else{
+                        //Debug_Log("写卡块x成功\r\n");
+                        WriteCardBlockSuccessUpLoad(WRITE_SUCCESS);
+                    }
+                break;
+            }
+            TypeA_Halt();
+            #endif
+        }
+		return;
+		default:
+            CL_LOG("错误.\n");
+		return;
+	}
+}
 
 int SwipeCardWriteCard(CB_STR_t *pBuff, uint16_t len)
 {
@@ -416,22 +618,6 @@ int SwipeCardWriteCardAck(CB_STR_t *pBuff, uint16_t len)
 }
 
 
-void MainBoardSwipeCard(CB_STR_t *pBuff, uint16_t len)
-{
-    int ret = CL_OK;
-	
-    switch (pBuff->head.cmd) 
-	{
-		case ENUM_READ_CARD:
-            SwipeCardReadCardAck(pBuff, len);
-            return;
-		case ENUM_WRITE_CARD:
-            SwipeCardWriteCardAck(pBuff, len);
-            return;
-	}
-    pBuff->data[0] = ret;
-	App_CB_SendData(pBuff, 1, ENUM_MODUL_CARD, ENUM_READ_CARD);
-}
 
 
 int UpgradeRequestHandler(CB_STR_t *pBuff, uint16_t len)
@@ -467,104 +653,6 @@ int UpgradeRequestHandler(CB_STR_t *pBuff, uint16_t len)
 	return CL_OK;
 }
 
-int UpgradeRequestAck(uint8_t result)
-{
-	uint8_t FrameBuff[128] = {0,};
-	CB_STR_t * pBuff = (void*)FrameBuff;
-	START_UPGRADE_REQUEST_ACK_STR* UpgradeAck = (START_UPGRADE_REQUEST_ACK_STR*)(pBuff->data);
-	
-	UpgradeAck->result = result;
-	App_CB_SendData(pBuff, sizeof(START_UPGRADE_REQUEST_ACK_STR), ENUM_MODUL_UPGRADE, ENUM_UPGRADE_REQUEST);
-	PrintfData("UpgradeRequestAck", (uint8_t*)pBuff, sizeof(START_UPGRADE_REQUEST_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
-    
-    return CL_OK;
-}
-
-int SendUpgradePackageAck(uint8_t result, uint32_t index)
-{
-	uint8_t FrameBuff[128] = {0,};
-	CB_STR_t * pBuff = (void*)FrameBuff;
-	DOWN_LOAD_FW_STR_ACK* SendUpgradeAck = (DOWN_LOAD_FW_STR_ACK*)(pBuff->data);
-	
-	SendUpgradeAck->result = result;
-	SendUpgradeAck->index = index;
-	App_CB_SendData(pBuff, sizeof(DOWN_LOAD_FW_STR_ACK), ENUM_MODUL_UPGRADE, ENUM_SEND_UPGRADE_PKT);
-//	PrintfData("SendUpgradePackageAck", (uint8_t*)pBuff, sizeof(DOWN_LOAD_FW_STR_ACK) + sizeof(CB_HEAD_STR) + 2);
-    
-    return CL_OK;
-}
-
-int SendUpgradePackage(CB_STR_t *pBuff, uint16_t len)
-{
-	int ret = 0;
-	uint8_t result = 0;
-	pDOWN_LOAD_FW_STR DownLoadData = (pDOWN_LOAD_FW_STR)(pBuff->data);
-	
-//	CL_LOG("aaaaaaaaaaaa[%d]!\n", DownLoadData->index);
-	
-	//GetPktSum(uint8_t *pData, uint16_t len);
-	if(GlobalInfo.UpgradeFlag != 0xa5)
-	{
-		result = 1;
-    	goto SendUpgradeAck;
-	}
-	ret = COM_Upgrade_Write(&DownLoadData->index, len);
-	if(ret == 2)
-    {
-    	SendUpgradePackageAck(0, DownLoadData->index);
-		DelayMsWithNoneOs(1000);
-		PlayVoice(VOIC_DEVICE_REBOOT);
-		CL_LOG("DEBUG_CMD_REBOOT重启系统！\n");
-		GlobalInfo.UpgradeFlag = 0;
-		DelayMsWithNoneOs(1000);
-		NVIC_SystemReset();
-	}
-	if(ret == 0)
-    {
-		result = 0;
-	}
-    else
-	{
-		result = 1;
-		CL_LOG("升级错误!!!\n");
-	}
-	
-	//DownLoadData->index = 
-SendUpgradeAck: SendUpgradePackageAck(result, DownLoadData->index);
-	
-    return CL_OK;
-}
-
-
-void MainBoardUpgrade(CB_STR_t *pBuff, uint16_t len)
-{
-    int ret = 0;
-	
-    switch (pBuff->head.cmd) 
-	{
-		case ENUM_UPGRADE_REQUEST:
-			PrintfData("ENUM_UPGRADE_REQUEST", (void*)pBuff, len);
-			if(CL_OK == UpgradeRequestHandler(pBuff, len))
-			{
-				ret = 0;
-				PlayVoice(VOIC_START_UPGRADE); 
-				GlobalInfo.UpgradeFlag = 0xa5;
-    			//DelayMsWithNoneOs(900);
-			}
-			else
-			{
-				CL_LOG("不可以升级!!!\n");
-				ret = 1;
-			}
-			UpgradeRequestAck(ret);
-            return;
-		case ENUM_SEND_UPGRADE_PKT:
-			//PrintfData("ENUM_SEND_UPGRADE_PKT", (void*)pBuff, len);
-            SendUpgradePackage(pBuff, len);
-
-            return;
-	}
-}
 
 void MainBoardPktProc(CB_STR_t *pBuff, uint16_t len)
 {
@@ -572,14 +660,16 @@ void MainBoardPktProc(CB_STR_t *pBuff, uint16_t len)
     FeedWatchDog();
     switch (pBuff->head.module)
 	{
-		case ENUM_MODUL_BASE:
+		case MsgType_ALL:
 			MainBoardBasicInfo(pBuff, len);
 		break;
-		case ENUM_MODUL_CARD:
-			MainBoardSwipeCard(pBuff, len);
+		case MsgType_KEY:
 		break;
-		case ENUM_MODUL_UPGRADE:
-			MainBoardUpgrade(pBuff, len);
+		case MsgType_CARD:
+			MainBoardCardInfo(pBuff, len);
+		break;
+		case MsgType_BLUE:
+			
 		break;
 	}
 }

@@ -11,8 +11,9 @@
 #include "gd32f3x0_gpio.h"
 #include "task.h"
 
-#define WATCH_DOG_ENABLE        	    1
+#define WATCH_DOG_ENABLE        	    0
 
+SAVE_INFO_T	SaveInfo = {0,};
 SYSTEM_INFO_T	SystemInfo = {0,};
 SYSTEM_STATUS_T SystemStatus = {0,};
 GLOBAL_INFO_T	GlobalInfo = {0,};
@@ -56,14 +57,14 @@ void FeedWatchDog(void)
 #define MAGIC_NUM_BASE                  0x123456AE
 void LoadSystemInfo(void)
 {
-//    const uint8_t station_id[8] = {0x00,0x00,0x00,0x66,0x77,0x88,0x99,0x00};
 	memset(&SystemInfo,0,sizeof(SystemInfo));
     memset(&SystemStatus,0,sizeof(SystemStatus));
-    FlashReadSysInfo(&SystemInfo, sizeof(SystemInfo));
+    FlashReadSysInfo(&SaveInfo, sizeof(SaveInfo));
 	memset((void*)&GlobalInfo, 0, sizeof(GlobalInfo));
 	
-   // if ((MAGIC_NUM_BASE) == SystemInfo.magic_number) 
-   	if(0)
+    SetRtcCount(1545991167);
+    if ((MAGIC_NUM_BASE) == SaveInfo.magic_number) 
+   //	if(0)
     {
         printf("\n\n\n===========================================================\n");
         CL_LOG("\rU8Sub启动App\n");
@@ -74,14 +75,12 @@ void LoadSystemInfo(void)
         CL_LOG("\rU8Sub初次启动App\n");
 		SetRtcCount(1545991167);
         
-//	time_t mktime(strcut tm * timeptr);
-        memset((void*)&SystemInfo, 0, sizeof(SystemInfo));
-        SystemInfo.magic_number = MAGIC_NUM_BASE;
-//        memcpy(SystemInfo.stationId, station_id,sizeof(station_id));
-        FlashWriteSysInfo(&SystemInfo, sizeof(SystemInfo));
+        memset((void*)&SaveInfo, 0, sizeof(SaveInfo));
+        SaveInfo.magic_number = MAGIC_NUM_BASE;
+        FlashWriteSysInfo(&SaveInfo, sizeof(SaveInfo));
     }
-    CL_LOG("\r设备版本号: fw_version = %d, subVersion1 = %d, subVersion2 = %d. \n", FW_VERSION, FW_VERSION_SUB1, FW_VERSION_SUB2);
-    CL_LOG("\n\r文件编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
+    CL_LOG("\n 设备版本号: fw_version = %d, subVersion1 = %d. \n", FW_VERSION, FW_VERSION_SUB1);
+    CL_LOG("\n 文件编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
 }
 
 void StartDelay(void)

@@ -534,3 +534,4 @@ ErrStatus rtc_refclock_detection_enable(void);
 ErrStatus rtc_refclock_detection_disable(void);
 
 #endif /* GD32F3X0_RTC_H */
+

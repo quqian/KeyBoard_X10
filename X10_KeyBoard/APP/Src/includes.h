@@ -25,7 +25,6 @@
 
 #define FW_VERSION                      2		//正式版本时只改主版本
 #define FW_VERSION_SUB1                 0
-#define FW_VERSION_SUB2                 0
 
 
 #define FLASH_SIZE                      128     //设备flash大小128K
@@ -36,6 +35,7 @@
 #define AppUpBkpAddr					(AppFlashAddr + ((uint32_t)58) * 1024)		//备份区	 58K
 
 #define SystemInfoAddr 					(AppUpBkpAddr + ((uint32_t)58) * 1024)		//(FLASH_BASE + ((uint32_t)124) * 1024)
+#define PCB_INFO						(FLASH_BASE + ((uint32_t)126) * 1024)				//PCB信息
 #define UPGRADE_INFO					(FLASH_BASE + ((uint32_t)127) * 1024)				//升级信息
 #define APP_FW_SIZE                     (AppUpBkpAddr - AppFlashAddr)
 

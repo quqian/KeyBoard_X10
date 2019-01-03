@@ -9,7 +9,7 @@
 /*输出：																			 	*/
 /*	       	pTagType[0],pTagType[1] =ATQA                                         		*/
 /*       	OK: 应答正确                                                              	*/
-/*	 		ERROR: 应答错误																*/
+/*	 		FM17520_ERROR: 应答错误																*/
 /****************************************************************************************/
 unsigned char TypeA_Request(unsigned char *pTagType) 
 {
@@ -31,7 +31,7 @@ unsigned char TypeA_Request(unsigned char *pTagType)
         *(pTagType + 1) = rece_buff[1];
         return OK;
     }
-    return ERROR;
+    return FM17520_ERROR;
 }
 /****************************************************************************************/
 /*名称：TypeA_WakeUp																	*/
@@ -42,7 +42,7 @@ unsigned char TypeA_Request(unsigned char *pTagType)
 /*输出：																			 	*/
 /*	       	pTagType[0],pTagType[1] =ATQA                                         		*/
 /*       	OK: 应答正确                                                              	*/
-/*	 		ERROR: 应答错误																*/
+/*	 		FM17520_ERROR: 应答错误																*/
 /****************************************************************************************/
 //unsigned char TypeA_WakeUp(unsigned char *pTagType) {
 //    unsigned char   result, send_buff[1], rece_buff[2];
@@ -71,7 +71,7 @@ unsigned char TypeA_Request(unsigned char *pTagType)
 /*输出：																			 	*/
 /*	       	pSnr[0],pSnr[1],pSnr[2],pSnr[3]pSnr[4] =UID                            		*/
 /*       	OK: 应答正确                                                              	*/
-/*	 		ERROR: 应答错误																*/
+/*	 		FM17520_ERROR: 应答错误																*/
 /****************************************************************************************/
 unsigned char TypeA_Anticollision(unsigned char selcode, unsigned char *pSnr) {
     unsigned char   result, send_buff[7], rece_buff[5], CollPos, NVB, Row, Col, Bit_Framing, Send_Len, Snr[5], i, Rece_Len;
@@ -111,7 +111,7 @@ unsigned char TypeA_Anticollision(unsigned char selcode, unsigned char *pSnr) {
         result = Pcd_Comm(Transceive, send_buff, Send_Len, rece_buff, &rece_bitlen);
         //PrintfData("quqian101TypeA_Anticollision", rece_buff, 16);
         if (result == TIMEOUT_Err) {
-            return ERROR;
+            return FM17520_ERROR;
         }
 
 
@@ -140,15 +140,16 @@ unsigned char TypeA_Anticollision(unsigned char selcode, unsigned char *pSnr) {
 
             if (Col == 0) {
                 //上次交互无冲突
-                if ((Rece_Len + Col) != 5) {
-                    return ERROR;
+                if ((Rece_Len + Col) != 5) 
+				{
+                    return FM17520_ERROR;
                 }
                 memcpy(pSnr, rece_buff, Rece_Len);//保存rece buff到 pSnr
             } else {
                 //上次交互有冲突	
                 if ((Rece_Len + Col) != 6) {
 
-                    return ERROR;
+                    return FM17520_ERROR;
                 }
 
 
@@ -161,7 +162,7 @@ unsigned char TypeA_Anticollision(unsigned char selcode, unsigned char *pSnr) {
             if (pSnr[4] == (pSnr[0] ^ pSnr[1] ^ pSnr[2] ^ pSnr[3])) {
                 return OK;
             } else {
-                return ERROR;
+                return FM17520_ERROR;
             }
         }
 
@@ -264,7 +265,7 @@ void TypeA_Set_Bit_Framing(unsigned char collpos, unsigned char *bit_framing) {
 /*输出：																			 	*/
 /*	       	pSak[0],pSak[1],pSak[2] =SAK			                            		*/
 /*       	OK: 应答正确                                                              	*/
-/*	 		ERROR: 应答错误																*/
+/*	 		FM17520_ERROR: 应答错误																*/
 /****************************************************************************************/
 unsigned char TypeA_Select(unsigned char selcode, unsigned char *pSnr, unsigned char *pSak) {
     unsigned char   result, i, send_buff[7], rece_buff[5];
@@ -297,7 +298,7 @@ unsigned char TypeA_Select(unsigned char selcode, unsigned char *pSnr, unsigned 
 /*输出：																			 	*/
 /*	       											                            		*/
 /*       	OK: 应答正确                                                              	*/
-/*	 		ERROR: 应答错误																*/
+/*	 		FM17520_ERROR: 应答错误																*/
 /****************************************************************************************/
 unsigned char TypeA_Halt(void) {
     unsigned char   result, send_buff[2], rece_buff[1];
@@ -324,7 +325,7 @@ unsigned char TypeA_Halt(void) {
 /*	       	pSnr[0],pSnr[1],pSnr[2],pSnr[3]pSnr[4] =UID 		                   		*/
 /*	       	pSak[0],pSak[1],pSak[2] =SAK			                            		*/
 /*       	OK: 应答正确                                                              	*/
-/*	 		ERROR: 应答错误																*/
+/*	 		FM17520_ERROR: 应答错误																*/
 /****************************************************************************************/
 unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, unsigned char *pSak) 
 {
@@ -334,20 +335,20 @@ unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, u
     
     if (result != OK) 
     {
-        return ERROR;
+        return FM17520_ERROR;
     }
     if (pTagType[1] != 0x00) {
-        return ERROR;
+        return FM17520_ERROR;
     }
     if ((pTagType[0] & 0xC0) == 0x00)   //M1卡
     {
         result = TypeA_Anticollision(0x93, pSnr);//防冲突验证
         if (result != OK) {
-            return ERROR;
+            return FM17520_ERROR;
         }
         result = TypeA_Select(0x93, pSnr, pSak);//选卡并继续防冲突验证
         if (result != OK) {
-            return ERROR;
+            return FM17520_ERROR;
         }
     }
     return result;
@@ -366,7 +367,7 @@ unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, u
 /*		*mifare_key，6字节认证密钥数组；*card_uid，4字节卡片UID数组						 */
 /*输出:																					 */
 /*		OK    :认证成功																	 */
-/*		ERROR :认证失败																  	 */
+/*		FM17520_ERROR :认证失败																  	 */
 /*****************************************************************************************/
  unsigned char Mifare_Auth(unsigned char mode,unsigned char sector,unsigned char *mifare_key,unsigned char *card_uid)
 {
@@ -398,9 +399,9 @@ unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, u
         if(Read_Reg(Status2Reg) & 0x08)//判断加密标志位，确认认证结果
             return OK;
         else
-            return ERROR;
+            return FM17520_ERROR;
     }
-	return ERROR;
+	return FM17520_ERROR;
 }
 /*****************************************************************************************/
 /*名称：Mifare_Blockset																	 */
@@ -409,7 +410,7 @@ unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, u
 /*																						 */
 /*输出:																					 */
 /*		OK    :设置成功																	 */
-/*		ERROR :设置失败																	 */
+/*		FM17520_ERROR :设置失败																	 */
 /*****************************************************************************************/
  unsigned char Mifare_Blockset(unsigned char block,unsigned char *buff)
  {
@@ -440,7 +441,7 @@ unsigned char TypeA_CardActivate(unsigned char *pTagType, unsigned char *pSnr, u
 /*输入：block，块号（0x00~0x3F）；buff，16字节读块数据数组								 */
 /*输出:																					 */
 /*		OK    :成功																		 */
-/*		ERROR :失败																		 */
+/*		FM17520_ERROR :失败																		 */
 /*****************************************************************************************/
 unsigned char Mifare_Blockread(unsigned char block,unsigned char *buff)
 {	
@@ -453,7 +454,7 @@ unsigned char Mifare_Blockread(unsigned char block,unsigned char *buff)
 	result =Pcd_Comm(Transceive,send_buff,2,buff,&rece_bitlen);//
     CL_LOG("rece_bitlen: %d ,result = %d \n", rece_bitlen, result);
 	if ((result!=OK )||(rece_bitlen!=16*8)) //接收到的数据长度为16
-		return ERROR;
+		return FM17520_ERROR;
 	return OK;
 }
 
@@ -463,7 +464,7 @@ unsigned char Mifare_Blockread(unsigned char block,unsigned char *buff)
 /*输入：block，块号（0x00~0x3F）；buff，16字节写块数据数组								 */
 /*输出:																					 */
 /*		OK    :成功																		 */
-/*		ERROR :失败																		 */
+/*		FM17520_ERROR :失败																		 */
 /*****************************************************************************************/
 unsigned char Mifare_Blockwrite(unsigned char block,unsigned char *buff)
 {
@@ -478,7 +479,7 @@ unsigned char Mifare_Blockwrite(unsigned char block,unsigned char *buff)
 	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A))	//如果未接收到0x0A，表示无ACK
     {
         //CL_LOG("Mifare_Blockwrite 错误1:\n");
-        return(ERROR);
+        return(FM17520_ERROR);
     }   
 	
 	
@@ -488,7 +489,7 @@ unsigned char Mifare_Blockwrite(unsigned char block,unsigned char *buff)
 	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A)) //如果未接收到0x0A，表示无ACK
 	{
         //CL_LOG("Mifare_Blockwrite 错误2:\n");
-        return(ERROR);
+        return(FM17520_ERROR);
     }
     
 	return OK;
@@ -499,7 +500,7 @@ unsigned char Mifare_Blockwrite(unsigned char block,unsigned char *buff)
 /*输入：block，块号（0x00~0x3F）；buff，4字节增值数据数组								 */
 /*输出:																					 */
 /*		OK    :成功																		 */
-/*		ERROR :失败																		 */
+/*		FM17520_ERROR :失败																		 */
 /*****************************************************************************************/
 
 unsigned char Mifare_Blockinc(unsigned char block,unsigned char *buff)
@@ -513,7 +514,7 @@ unsigned char Mifare_Blockinc(unsigned char block,unsigned char *buff)
 	result=Pcd_Comm(Transceive,send_buff,2,rece_buff,&rece_bitlen);
     //PrintfData("quqian66Mifare_Blockinc1", rece_buff, 16);
 	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A))	//如果未接收到0x0A，表示无ACK
-		return ERROR;
+		return FM17520_ERROR;
 	Pcd_SetTimer(5);
 	Clear_FIFO();
 	Pcd_Comm(Transceive,buff,4,rece_buff,&rece_bitlen);
@@ -527,7 +528,7 @@ unsigned char Mifare_Blockinc(unsigned char block,unsigned char *buff)
 /*输入：block，块号（0x00~0x3F）；buff，4字节减值数据数组								 */
 /*输出:																					 */
 /*		OK    :成功																		 */
-/*		ERROR :失败																		 */
+/*		FM17520_ERROR :失败																		 */
 /*****************************************************************************************/
 
 unsigned char Mifare_Blockdec(unsigned char block,unsigned char *buff)
@@ -541,7 +542,7 @@ unsigned char Mifare_Blockdec(unsigned char block,unsigned char *buff)
 	result=Pcd_Comm(Transceive,send_buff,2,rece_buff,&rece_bitlen);
     //PrintfData("quqian77Mifare_Blockdec1", rece_buff, 16);
 	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A))	//如果未接收到0x0A，表示无ACK
-		return ERROR;
+		return FM17520_ERROR;
 	Pcd_SetTimer(5);
 	Clear_FIFO();
 	Pcd_Comm(Transceive,buff,4,rece_buff,&rece_bitlen);
@@ -555,7 +556,7 @@ unsigned char Mifare_Blockdec(unsigned char block,unsigned char *buff)
 /*输入：block，块号（0x00~0x3F）														 */
 /*输出:																					 */
 /*		OK    :成功																		 */
-/*		ERROR :失败																		 */
+/*		FM17520_ERROR :失败																		 */
 /*****************************************************************************************/
 
 unsigned char Mifare_Transfer(unsigned char block)
@@ -569,7 +570,7 @@ unsigned char Mifare_Transfer(unsigned char block)
 	result=Pcd_Comm(Transceive,send_buff,2,rece_buff,&rece_bitlen);
     //PrintfData("quqian88Mifare_Transfer", rece_buff, 16);
 	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A))	//如果未接收到0x0A，表示无ACK
-		return ERROR;
+		return FM17520_ERROR;
 	return result;
 }
 
@@ -579,7 +580,7 @@ unsigned char Mifare_Transfer(unsigned char block)
 /*输入：block，块号（0x00~0x3F）														 */
 /*输出:																					 */
 /*		OK    :成功																		 */
-/*		ERROR :失败																		 */
+/*		FM17520_ERROR :失败																		 */
 /*****************************************************************************************/
 
 unsigned char Mifare_Restore(unsigned char block)
@@ -593,7 +594,7 @@ unsigned char Mifare_Restore(unsigned char block)
 	result=Pcd_Comm(Transceive,send_buff,2,rece_buff,&rece_bitlen);
     //PrintfData("quqian99Mifare_Restore1", rece_buff, 16);
 	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A))	//如果未接收到0x0A，表示无ACK
-		return ERROR;
+		return FM17520_ERROR;
 	Pcd_SetTimer(5);
 	send_buff[0]=0x00;
 	send_buff[1]=0x00;

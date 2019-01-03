@@ -8,6 +8,10 @@
 
 
 
+//按键返回事件
+extern void key_onclick_callback(uint8_t values);
+extern void GetKey(void);
+extern void TsiKeyInit(void);
 
 
 

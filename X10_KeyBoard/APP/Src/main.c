@@ -33,8 +33,13 @@
 #include "sim_uart.h"
 #include "ComProto.h"
 #include "led.h"
+#include "tsiKey.h"
 
 
+
+uint32_t ReadCardTicks = 0;
+uint8_t cardFlag = 1;
+uint8_t isSyncSystemInfo = 0;
 
 
 
@@ -55,6 +60,7 @@ void BspInit(void)
 	LoadSystemInfo();
     SystemResetRecord();
     printf("UsartInit OK!\r\n");
+	TsiKeyInit();
 //    SC8042B_Init();
 	FM175XX_Config();
 
@@ -71,13 +77,15 @@ void BspInit(void)
 int main(void)
 {
 	uint32_t NFCardTicks = GetTimeTicks();
-	uint32_t HeartBeatTicks = NFCardTicks;
-	uint32_t ShakeHandTicks = NFCardTicks;
 	uint32_t GreenLedTicks = NFCardTicks;
 	uint32_t TimeFlagTicks = GetTimeTicks();
+	uint32_t SystemTimerTicks = NFCardTicks;
+	uint32_t SystemStatusTicks = NFCardTicks;
+	
+	ReadCardTicks = NFCardTicks;
 //    int64_t timeaaa;
     
-	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
+//	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
 	
     BspInit();
@@ -85,7 +93,7 @@ int main(void)
 	while(1)
     {
         FeedWatchDog();
-		//DelayMsWithNoneOs(50);
+		
 		TimeFlagTicks = GetTimeTicks();
         {
         #if 1
@@ -93,14 +101,18 @@ int main(void)
             {
                 GreenLedTicks = GetTimeTicks();
                 GreenLed();
-                CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
-//                #if 1
-//                timeaaa = GetRtcTimeStamp();
-//                timeaaa = ((long long)(RTC_TIMER_STAMEP) + timeaaa);
-//                #endif
-//                CL_LOG("时间戳[%d]\n", (uint32_t)timeaaa);
+            //    CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
+                #if 0
+                timeaaa = GetRtcTimeStamp();
+                timeaaa = ((long long)(RTC_TIMER_STAMEP) + timeaaa);
+                CL_LOG("时间戳[%d]\n", (uint32_t)timeaaa);
+                #endif
+                GetKey();
             }
-            
+			
+			//处理通信数据
+            ComRecvMainBoardData();
+
 			if(((NFCardTicks + 500) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks))
             {
                 NFCardTicks = TimeFlagTicks;
@@ -114,25 +126,27 @@ int main(void)
                 BswDrv_FM175XX_SetPowerDown(1);			//进入睡眠
                 FeedWatchDog();
             }
-            
-			if(0xa5 != GlobalInfo.ShakeHandState)
-			{
-				if(((ShakeHandTicks + 5000) <= TimeFlagTicks) || (ShakeHandTicks > TimeFlagTicks))
-				{
-                    FeedWatchDog();
-                    ShakeHandTicks = TimeFlagTicks;
-					BasicInfoShakeHand();
-				}
-			}
+            if(((ReadCardTicks + 5000) <= TimeFlagTicks) || (ReadCardTicks > TimeFlagTicks))
+            {
+                ReadCardTicks = TimeFlagTicks;
+				cardFlag = 1;
+            }
             DebugRecvProc();
-            ComRecvMainBoardData();
-			if(((HeartBeatTicks + 60000) <= TimeFlagTicks) || (HeartBeatTicks > TimeFlagTicks))
+			//同步系统信息到X10p
+			if((0 == isSyncSystemInfo) && (((SystemTimerTicks + 5000) <= TimeFlagTicks) || (SystemTimerTicks > TimeFlagTicks)))
+            {
+                SystemTimerTicks = TimeFlagTicks;
+				
+				SyncSystemInfo();
+            }
+            //同步系统状态到X10p
+	        if(((SystemStatusTicks + 30000) <= TimeFlagTicks) || (SystemStatusTicks > TimeFlagTicks))
 			{
-                FeedWatchDog();
-                HeartBeatTicks = TimeFlagTicks;
-				BasicInfoHeartBeat();
-		//		CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
-			}
+	            SystemStatusTicks = TimeFlagTicks;
+
+	            SyncSystemState();
+	        }
+			
 		#endif
         }
     }

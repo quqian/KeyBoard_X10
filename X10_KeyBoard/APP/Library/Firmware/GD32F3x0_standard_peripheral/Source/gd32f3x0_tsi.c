@@ -99,7 +99,8 @@ void tsi_init(uint32_t prescaler,uint32_t charge_duration,uint32_t transfer_dura
 */
 void tsi_sample_pin_enable(uint32_t sample)
 {
-    if(RESET == (TSI_CTL0 & TSI_CTL0_TSIS)){
+    if(RESET == (TSI_CTL0 & TSI_CTL0_TSIS))
+	{
         TSI_SAMPCFG |= sample;
     }
 }
@@ -113,7 +114,8 @@ void tsi_sample_pin_enable(uint32_t sample)
 */
 void tsi_sample_pin_disable(uint32_t sample)
 { 
-    if(RESET == (TSI_CTL0 & TSI_CTL0_TSIS)){
+    if(RESET == (TSI_CTL0 & TSI_CTL0_TSIS))
+	{
         TSI_SAMPCFG &=  ~sample;
     }
 }

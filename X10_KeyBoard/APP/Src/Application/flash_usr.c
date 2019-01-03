@@ -13,13 +13,13 @@ int FlashWriteSysInfo(void *pSysInfo, uint16_t size)
 {
     #if 1
     uint32_t i = 0;
-    SYSTEM_INFO_T systemInfo = {0};
+    SAVE_INFO_T SaveInfo = {0};
     
     for(i = 0; i < FLASH_WRITE_REPEAT_TIMES; i++)
     {
         FlashWrite(SystemInfoAddr, pSysInfo, size);
-        FlashReadByte(SystemInfoAddr, (void *)&systemInfo, sizeof(systemInfo));
-        if(memcmp((void *)&systemInfo, pSysInfo, size) == 0)
+        FlashReadByte(SystemInfoAddr, (void *)&SaveInfo, sizeof(SaveInfo));
+        if(memcmp((void *)&SaveInfo, pSysInfo, size) == 0)
         {
             break;
         }
