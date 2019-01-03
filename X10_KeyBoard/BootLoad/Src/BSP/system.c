@@ -205,7 +205,7 @@ uint8_t TIMERX_IRQ[TIMER_MAX] = 		{TIMER0_BRK_UP_TRG_COM_IRQn, TIMER1_IRQn};
 ** Returned value:	    None
 ** Author:              quqian
 *****************************************************************************/
-void TimerConfig(uint8_t Index, uint32_t Period)
+void TimerConfig(uint8_t Index, uint32_t Period, uint8_t UserIrq)
 {
     timer_parameter_struct timer_initpara;
 
@@ -213,7 +213,7 @@ void TimerConfig(uint8_t Index, uint32_t Period)
     timer_deinit(TIMERX[Index]);
 
     /* TIMER0 configuration */
-    timer_initpara.prescaler         = 83;
+    timer_initpara.prescaler         = 107;
     timer_initpara.alignedmode       = TIMER_COUNTER_EDGE;
     timer_initpara.counterdirection  = TIMER_COUNTER_UP;
     timer_initpara.period            = Period;
@@ -221,13 +221,21 @@ void TimerConfig(uint8_t Index, uint32_t Period)
     timer_initpara.repetitioncounter = 0;
     timer_init(TIMERX[Index], &timer_initpara);
 
-	timer_interrupt_enable(TIMERX[Index], TIMER_INT_UP | TIMER_FLAG_UP);
-	timer_flag_clear(TIMERX[Index], TIMER_FLAG_UP);
-    nvic_irq_enable(TIMERX_IRQ[Index], 1, 1);
+	if(1 == UserIrq)
+	{
+		timer_interrupt_enable(TIMERX[Index], TIMER_INT_UP | TIMER_FLAG_UP);
+		timer_flag_clear(TIMERX[Index], TIMER_FLAG_UP);
+		nvic_irq_enable(TIMERX_IRQ[Index], 1, 1);
+	}
 	
     /* auto-reload preload enable */
     timer_auto_reload_shadow_enable(TIMERX[Index]);
-    timer_enable(TIMERX[Index]);
+	
+	timer_enable(TIMERX[Index]);
+	if(0 == Index)
+	{
+		timer_disable(TIMERX[Index]);
+	}
 }
 
 void TIMER1_IRQHandler(void)

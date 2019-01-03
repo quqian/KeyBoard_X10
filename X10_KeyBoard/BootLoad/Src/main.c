@@ -70,6 +70,7 @@ void BspInit(void)
     WatchDogInit();             //看门狗初始化
     FeedWatchDog();
 	SystickInit();
+    SimUartInit();
 //	UsartInit();                //串口初始化
 ////    printf("into bootload!\r\n");
 ////    SC8042B_Init();
@@ -77,11 +78,11 @@ void BspInit(void)
 //    //语音提示    
 ////    PlayVoice(VOIC_DEVICE_REBOOT);           //设备重启
 ////    DelayMsWithNoneOs(900);
-//    printf("\n\n\n===========================================================\n");
-//    CL_LOG(" U8Sub启动bootLoad\n");
-//    printf("fw_version: %d.%d.%d.\n", (uint8_t)FW_VERSION, (uint8_t)FW_VERSION_SUB1, (uint8_t)FW_VERSION_SUB2);
-//    printf("\n U8Sub bootload编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
-//    printf("\n===========================================================\n");
+    printf("\n\n\n===========================================================\n");
+    CL_LOG(" U8Sub启动bootLoad\n");
+    printf("fw_version: %d.%d.%d.\n", (uint8_t)FW_VERSION, (uint8_t)FW_VERSION_SUB1, (uint8_t)FW_VERSION_SUB2);
+    printf("\n U8Sub bootload编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
+    printf("\n===========================================================\n");
 }
 
 int main(void)

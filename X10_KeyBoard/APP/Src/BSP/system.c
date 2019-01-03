@@ -11,7 +11,7 @@
 #include "gd32f3x0_gpio.h"
 #include "task.h"
 
-#define WATCH_DOG_ENABLE        	    0
+#define WATCH_DOG_ENABLE        	    1
 
 SAVE_INFO_T	SaveInfo = {0,};
 SYSTEM_INFO_T	SystemInfo = {0,};
@@ -81,6 +81,7 @@ void LoadSystemInfo(void)
     }
     CL_LOG("\n 设备版本号: fw_version = %d, subVersion1 = %d. \n", FW_VERSION, FW_VERSION_SUB1);
     CL_LOG("\n 文件编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
+	SystemInfo.soft_version = FW_VERSION;
 }
 
 void StartDelay(void)

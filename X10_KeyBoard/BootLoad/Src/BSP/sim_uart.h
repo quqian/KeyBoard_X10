@@ -9,6 +9,11 @@
 #define SIM_UART_CNT                1
 
 
+#define SimUartDelay				DelayUs
+#define COM_BAUD_TIMES				(8)
+#define COM_DATA_HIGH()				gpio_bit_set(GPIOC, GPIO_PIN_13)	//高电平
+#define COM_DATA_LOW()				gpio_bit_reset(GPIOC, GPIO_PIN_13) //低电平
+
 
 enum{
 	COM_START_BIT=0,
@@ -52,6 +57,7 @@ typedef struct {
 
 extern int SimuUartSendData(SIM_UART_STR *pSimUart, const uint8_t *pData, uint16_t len);
 extern void SimUartInit (void);
+extern void VirtualUartByteSend(uint8_t Data);
 
 
 extern SIM_UART_STR gSimUartCtrl[SIM_UART_CNT];
