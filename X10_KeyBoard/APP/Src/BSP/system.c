@@ -22,10 +22,10 @@ GLOBAL_INFO_T	GlobalInfo = {0,};
 
 int GetPktSum(uint8_t *pData, uint16_t len)
 {
-    int i;
+    uint32_t i;
     uint8_t sum = 0;
 
-    for (i=0; i<len; i++) 
+    for (i = 0; i < len; i++) 
 	{
         sum += pData[i];
     }

@@ -86,7 +86,7 @@ int main(void)
 	ReadCardTicks = NFCardTicks;
 //    int64_t timeaaa;
     
-//	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
+	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
 	
     BspInit();
@@ -152,7 +152,6 @@ int main(void)
 
 	            SyncSystemState();
 	        }
-			
 		#endif
         }
     }

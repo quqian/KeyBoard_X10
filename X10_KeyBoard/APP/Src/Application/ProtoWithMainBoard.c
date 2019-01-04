@@ -170,7 +170,9 @@ void App_CB_SendData(CB_STR_t *ptk,uint16_t len, uint8_t  module, uint8_t  cmd)
 	ptk->head.cmd = cmd;
 	
     ptk->data[len] = GetPktSum((uint8_t*)&ptk->head.ver, len + 4);
-
+    ptk->data[len + 1] = 0x0d;
+    ptk->data[len + 2] = 0x0a;
+    
 	UsartSend(RS232_INDEX, (void*)ptk, sizeof(CB_HEAD_STR) + len + 1);
 }
 
@@ -195,7 +197,7 @@ int PCBBumUpLoad(uint8_t *pcb)
 	uint8_t FrameBuff[128] = {0,};
 	CB_STR_t * pBuff = (void*)FrameBuff;
 	PCB_INFO_STR* PcbAck = (PCB_INFO_STR*)pBuff->data;
-
+    FeedWatchDog();
 	memcpy(PcbAck->Pcb, pcb, 8);
     App_CB_SendData(pBuff, sizeof(PCB_INFO_STR), MsgType_ALL, CMD_READ_PCB);
 	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(PCB_INFO_STR) + sizeof(CB_HEAD_STR) + 2);
@@ -209,10 +211,10 @@ int SyncSystemInfo(void)
 	uint8_t FrameBuff[128] = {0,};
 	CB_STR_t * pBuff = (void*)FrameBuff;
 	SYSTEM_INFO_T* SystemInfoAck = (SYSTEM_INFO_T*)pBuff->data;
-
-	memcpy(&SystemInfoAck, &SystemInfo, sizeof(SystemInfo));
+    FeedWatchDog();
+	memcpy(SystemInfoAck, &SystemInfo, sizeof(SystemInfo));
     App_CB_SendData(pBuff, sizeof(SYSTEM_INFO_T), MsgType_ALL, CMD_UP_SYSTEM_INFO);
-//	PrintfData("SyncSystemInfo", (uint8_t*)pBuff, sizeof(SYSTEM_INFO_T) + sizeof(CB_HEAD_STR) + 2);
+	PrintfData("SyncSystemInfo", (uint8_t*)pBuff, sizeof(SYSTEM_INFO_T) + sizeof(CB_HEAD_STR) + 2);
     
     return 0;
 }

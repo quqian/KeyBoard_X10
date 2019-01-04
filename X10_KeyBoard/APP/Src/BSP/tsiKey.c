@@ -855,6 +855,7 @@ void TsiKeyInit(void)
 
 void GetKey(void)
 {
+    FeedWatchDog();
 	KeyValue = 0xff;
 	G0GetKey();
 	G1GetKey();
