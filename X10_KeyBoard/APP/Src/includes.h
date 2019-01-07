@@ -56,12 +56,12 @@
 
 #define RTC_TIMER_STAMEP                ((long long)(3152966400))
 
-//#define CL_LOG(fmt,args...) do {    \
-//    printf("[X10KB %s] %s:(%d) " fmt, GetCurrentTime(), __func__, __LINE__, ##args); \
-//}while(0)
 #define CL_LOG(fmt,args...) do {    \
-    printf("[X10KB %d] %s:(%d) " fmt, GetTimeTicks()/1000, __func__, __LINE__, ##args); \
+    printf("[X10KB %s] %s:(%d) " fmt, GetCurrentTime(), __func__, __LINE__, ##args); \
 }while(0)
+//#define CL_LOG(fmt,args...) do {    \
+//    printf("[X10KB %d] %s:(%d) " fmt, GetTimeTicks()/1000, __func__, __LINE__, ##args); \
+//}while(0)
 
 
 

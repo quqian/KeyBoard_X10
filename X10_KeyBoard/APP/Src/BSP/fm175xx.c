@@ -261,6 +261,7 @@ uint8_t Pcd_Comm(uint8_t Command,
         if (irq & 0x01)    //TimerIRq  定时器时间用尽
         {
             result = TIMEOUT_Err ;
+		//	CL_LOG("1111111111\n");
             break;
         }
         if (Command == MFAuthent) 
@@ -362,6 +363,7 @@ uint8_t Pcd_Comm(uint8_t Command,
     if (result == OK)
     {
         result = Read_Reg(ErrorReg);
+	//	CL_LOG("22222, result = %d\n", result);
     }
 
     Set_BitMask(ControlReg, 0x80);     // stop timer now

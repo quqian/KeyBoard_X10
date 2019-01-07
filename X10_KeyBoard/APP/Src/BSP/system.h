@@ -61,6 +61,7 @@ typedef struct
 	uint32_t ReportTicks;
 	rtc_parameter_struct RtcData;
 	rtc_alarm_struct  rtc_alarm;
+	uint8_t cardFlag;
 }GLOBAL_INFO_T;
 
 extern void WatchDogInit(void) ;

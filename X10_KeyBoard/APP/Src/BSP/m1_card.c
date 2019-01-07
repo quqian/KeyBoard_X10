@@ -458,9 +458,12 @@ unsigned char Mifare_Blockread(unsigned char block,unsigned char *buff)
 	send_buff[1]=block;//块地址
 	Clear_FIFO();
 	result =Pcd_Comm(Transceive,send_buff,2,buff,&rece_bitlen);//
-    CL_LOG("rece_bitlen: %d ,result = %d \n", rece_bitlen, result);
+ //   printf("rece_bitlen: %d ,result = %d \n", rece_bitlen, result);
 	if ((result!=OK )||(rece_bitlen!=16*8)) //接收到的数据长度为16
+	{
 		return FM17520_ERROR;
+	}
+
 	return OK;
 }
 
@@ -474,30 +477,30 @@ unsigned char Mifare_Blockread(unsigned char block,unsigned char *buff)
 /*****************************************************************************************/
 unsigned char Mifare_Blockwrite(unsigned char block,unsigned char *buff)
 {
-	unsigned char   result,send_buff[16],rece_buff[16];
+	unsigned char  send_buff[16],rece_buff[16];
 	unsigned int   rece_bitlen;
 	Pcd_SetTimer(1);
 	send_buff[0] = 0xa0;//a0 写块
 	send_buff[1] = block;//块地址
 
-	result = Pcd_Comm(Transceive,send_buff,2,rece_buff,&rece_bitlen);//
-    //CL_LOG("rece_bitlen: %d ,result = %d ,rece_buff[0] = %d\n", rece_bitlen, result, rece_buff[0]);
-	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A))	//如果未接收到0x0A，表示无ACK
+	Pcd_Comm(Transceive, send_buff, 2, rece_buff, &rece_bitlen);//
+ //   CL_LOG("rece_bitlen: %d ,result = %d ,rece_buff[0] = %d\n", rece_bitlen, result, rece_buff[0]);
+	
+	if ((rece_bitlen != 4) | ((rece_buff[0] & 0x0F)!=0x0A)) 	//如果未接收到4bit 1010，表示无ACK
     {
-        //CL_LOG("Mifare_Blockwrite 错误1:\n");
-        return(FM17520_ERROR);
-    }   
-	
-	
-	Pcd_SetTimer(5);
-	result =Pcd_Comm(Transceive,buff,16,rece_buff,&rece_bitlen);//
-    //CL_LOG("qa rece_bitlen: %d ,result = %d ,rece_buff[0] = %d\n", rece_bitlen, result, rece_buff[0]);
-	if ((result!=OK )|((rece_buff[0]&0x0F)!=0x0A)) //如果未接收到0x0A，表示无ACK
-	{
-        //CL_LOG("Mifare_Blockwrite 错误2:\n");
+        CL_LOG("Mifare_Blockwrite 错误1:\n");
         return(FM17520_ERROR);
     }
-    
+	
+	Pcd_SetTimer(5);
+	Pcd_Comm(Transceive, buff, 16, rece_buff, &rece_bitlen);//
+ //   CL_LOG("qa rece_bitlen: %d ,result = %d ,rece_buff[0] = %d\n", rece_bitlen, result, rece_buff[0]);
+    if ((rece_bitlen != 4)|((rece_buff[0] & 0x0F)!=0x0A)) 	//如果未接收到4bit 1010，表示无ACK
+    {
+        CL_LOG("Mifare_Blockwrite 错误2:\n");
+        return(FM17520_ERROR);
+    }
+	
 	return OK;
 }
 /*****************************************************************************************/

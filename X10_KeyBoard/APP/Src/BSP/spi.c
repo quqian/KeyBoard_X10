@@ -115,11 +115,11 @@ uint8_t SpiReadWriteByte(uint8_t value)
 		}
 
 		SPI_CLK_HIGH();
-		Bsp_Delay_us(1);
+		Bsp_Delay_us(10);
 		value = (value << 1);   
 		value |= SPI_MISO_READ();
 		SPI_CLK_LOW();  
-		Bsp_Delay_us(1);
+		Bsp_Delay_us(10);
 	}
     
 	return (value);      

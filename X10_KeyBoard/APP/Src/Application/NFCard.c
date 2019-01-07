@@ -8,7 +8,6 @@
 #include "ComProto.h"
 
 
-extern uint8_t cardFlag;
 extern uint32_t ReadCardTicks;
 
 #define USER_NFC_CARD     			0
@@ -71,14 +70,14 @@ void Check_M1_Card(void)
     uint8_t PICC_ATQA[2], PICC_SAK[3], PICC_UID[4];
     uint8_t result = 0;
     
-    if (cardFlag == 1)
+    if (GlobalInfo.cardFlag == 1)
     {
         if ((TypeA_CardActivate(PICC_ATQA, PICC_UID, PICC_SAK) == OK))
         {
-            PrintfData("PICC_UID:", PICC_UID,4);
-            PrintfData("PICC_ATQA1:", PICC_ATQA,2);
+         // PrintfData("PICC_UID:", PICC_UID,4);
+         // PrintfData("PICC_ATQA1:", PICC_ATQA,2);
 			ReadCardTicks = GetTimeTicks();
-            cardFlag = 0;
+            GlobalInfo.cardFlag = 0;
             
          //   if(PICC_ATQA[0] == 0x04)  //M1ø®
             {
@@ -87,8 +86,8 @@ void Check_M1_Card(void)
                 if((Mifare_Auth(0, 2, SecretCardKEY_A, PICC_UID) == OK))
                 {
                     result++;
-                    CL_LOG("result = %d \n", result);
-                    CL_LOG("this is SecretCard.\n");
+                //  CL_LOG("result = %d \n", result);
+                //  CL_LOG("this is SecretCard.\n");
                     CardTypeUpLoad(1, PICC_UID);
                     //Debug_Log("√‹‘øø®…»«¯2.\n");
                 }
@@ -101,21 +100,21 @@ void Check_M1_Card(void)
             if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
             {
                 ReadCardTicks = GetTimeTicks();
-                cardFlag = 0;
+                GlobalInfo.cardFlag = 0;
              //   if(PICC_ATQA[0]==0x04)  //M1ø®
                 {
                     if(Mifare_Auth(0, (ENTRANCE_GUARD_CARD_SECTOR_OFFSET + 2), SecretCardKEY_A,PICC_UID) == OK)
                     {
                         result++;
-                        CL_LOG("result = %d \n", result);
+                    //  CL_LOG("result = %d \n", result);
 
-                        CardTypeUpLoad(1,PICC_UID);
+                        CardTypeUpLoad(1, PICC_UID);
                         //Debug_Log("√‹‘øø®…»«¯12.\n");
                     }
                     else if(0 == result)  //∑Ò‘Ú «∑«√‹‘øø®
                     {
-						CL_LOG("∑«√‹‘øø®\n");
-                        CardTypeUpLoad(2,PICC_UID);
+						printf("∑«√‹‘øø®\n");
+                        CardTypeUpLoad(2, PICC_UID);
                     }
                     TypeA_Halt();
                     return;

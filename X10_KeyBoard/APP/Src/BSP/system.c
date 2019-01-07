@@ -61,6 +61,7 @@ void LoadSystemInfo(void)
     memset(&SystemStatus,0,sizeof(SystemStatus));
     FlashReadSysInfo(&SaveInfo, sizeof(SaveInfo));
 	memset((void*)&GlobalInfo, 0, sizeof(GlobalInfo));
+	GlobalInfo.cardFlag = 1;
 	
     SetRtcCount(1545991167);
     if ((MAGIC_NUM_BASE) == SaveInfo.magic_number) 

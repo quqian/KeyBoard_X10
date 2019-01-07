@@ -38,7 +38,6 @@
 
 
 uint32_t ReadCardTicks = 0;
-uint8_t cardFlag = 1;
 uint8_t isSyncSystemInfo = 0;
 
 
@@ -84,7 +83,7 @@ int main(void)
 	uint32_t SystemStatusTicks = NFCardTicks;
 	
 	ReadCardTicks = NFCardTicks;
-//    int64_t timeaaa;
+ //    int64_t timeaaa;
     
 	nvic_vector_table_set(FLASH_BASE, BOOT_SIZE);        	//设置Flash地址偏移
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
@@ -118,7 +117,7 @@ int main(void)
             
 			//处理通信数据
             ComRecvMainBoardData();
-
+ 			 
 			if((((NFCardTicks + 1000) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks)) && (0 == SystemStatus.card_state))
             {
                 NFCardTicks = TimeFlagTicks;
@@ -132,10 +131,11 @@ int main(void)
              //   BswDrv_FM175XX_SetPowerDown(1);			//进入睡眠
                 FeedWatchDog();
             }
-            if(((ReadCardTicks + 4000) <= TimeFlagTicks) || (ReadCardTicks > TimeFlagTicks))
+			
+            if(((ReadCardTicks + 5000) <= GetTimeTicks()) || (ReadCardTicks > GetTimeTicks()))
             {
-                ReadCardTicks = TimeFlagTicks;
-				cardFlag = 1;
+                ReadCardTicks = GetTimeTicks();
+				GlobalInfo.cardFlag = 1;
             }
             DebugRecvProc();
 			//同步系统信息到X10p

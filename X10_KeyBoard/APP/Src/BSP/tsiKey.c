@@ -73,8 +73,6 @@ uint16_t SampleRefnumArrayG0P2[20] = {0};
 uint16_t SampleRefnumArrayG0P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG0[4] = {0,};
-/* The flag of touching */
-uint8_t TouchFlagG0[4] = {0, 0, 0, 0};
 
 
 /* the current cycle number array of the channel pin */
@@ -85,9 +83,6 @@ uint16_t SampleRefnumArrayG1P2[20] = {0};
 uint16_t SampleRefnumArrayG1P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG1[4] = {0,};
-/* The flag of touching */
-uint8_t TouchFlagG1[4] = {0,0,0,0};
-
 
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG2[4] = {0,0,0,0};
@@ -97,8 +92,6 @@ uint16_t SampleRefnumArrayG2P2[20] = {0};
 uint16_t SampleRefnumArrayG2P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG2[4] = {0,};
-/* The flag of touching */
-uint8_t TouchFlagG2[4] = {0,0,0,0};
 
 
 /* the current cycle number array of the channel pin */
@@ -109,8 +102,6 @@ uint16_t SampleRefnumArrayG3P2[20] = {0};
 uint16_t SampleRefnumArrayG3P0[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG3[4] = {0,};
-/* The flag of touching */
-uint8_t TouchFlagG3[4] = {0,0,0,0};
 
 
 /* the current cycle number array of the channel pin */
@@ -121,8 +112,6 @@ uint16_t SampleRefnumArrayG5P2[20] = {0};
 uint16_t SampleRefnumArrayG5P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG5[4] = {0,};
-/* The flag of touching */
-uint8_t TouchFlagG5[4] = {0,0,0,0};
 
 
 void delay(uint32_t nCount)
@@ -145,12 +134,12 @@ int KeyValuesUpLoad(uint8_t values)
 }
 
 //按键返回事件
-void key_onclick_callback(uint8_t values)
+void KeyCallBack(uint8_t values)
 {
 	if((0xff != values) && (11 >= values))
 	{
 		KeyValuesUpLoad(values);
-		CL_LOG("[keyhhhhh: %d]\r\n", values);
+		CL_LOG("[key: %d]\r\n", values);
 	}
 }
 
@@ -390,7 +379,7 @@ void G3GetKey(void)
     if((SampleRefnumG3[1]-SampleNumG3[1]) > 0x20)
     {
     	KeyValue = 2;
-		CL_LOG("[Key: %d]\n", KeyValue);
+		printf("[Key: %d]\n", KeyValue);
     }
     else
     {
@@ -411,12 +400,7 @@ void G3GetKey(void)
     if((SampleRefnumG3[2]-SampleNumG3[2]) > 0x20)
     {
         KeyValue = 1;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG3[2] = 0;
-   //     gd_eval_led_off(LED2);
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G3P2);
 
@@ -433,12 +417,7 @@ void G3GetKey(void)
     if((SampleRefnumG3[0]-SampleNumG3[0]) > 0x20)
     {
         KeyValue = 3;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG3[0] = 0;
-    //    gd_eval_led_off(LED3);
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G3P0);
 }
@@ -515,12 +494,7 @@ void G5GetKey(void)
     if((SampleRefnumG5[1]-SampleNumG5[1]) > 0x20)
     {
     	KeyValue = 6;
-		CL_LOG("[Key: %d]\n", KeyValue);
-        TouchFlagG5[1] = 1;
-    }
-    else
-    {
-        TouchFlagG5[1] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G5P1);
 
@@ -536,13 +510,7 @@ void G5GetKey(void)
     if((SampleRefnumG5[2]-SampleNumG5[2]) > 0x20)
     {
         KeyValue = 5;
-		CL_LOG("[Key: %d]\n", KeyValue);
-        TouchFlagG5[2] = 1;
-    }
-    else
-    {
-        TouchFlagG5[2] = 0;
-   //     gd_eval_led_off(LED2);
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G5P2);
 
@@ -556,13 +524,8 @@ void G5GetKey(void)
     }
     if((SampleRefnumG5[3] - SampleNumG5[3]) > 0x20)
     {
-        TouchFlagG5[3] = 1;
 		KeyValue = 4;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG5[3] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G5P3);
 }
@@ -612,13 +575,8 @@ void G0GetKey(void)
     /* channel 1 touch */
     if((SampleRefnumG0[1]-SampleNumG0[1]) > 0x20)
     {
-        TouchFlagG0[1] = 1;
 		KeyValue = 11;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG0[1] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G0P1);
 }
@@ -693,13 +651,8 @@ void G1GetKey(void)
     /* channel 1 touch */
     if((SampleRefnumG1[1]-SampleNumG1[1]) > 0x20)
     {
-        TouchFlagG1[1] = 1;
         KeyValue = 0;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG1[1] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G1P1);
 
@@ -714,13 +667,8 @@ void G1GetKey(void)
 	
     if((SampleRefnumG1[2]-SampleNumG1[2]) > 0x20)
     {
-        TouchFlagG1[2] = 1;
         KeyValue = 10;
-		CL_LOG("[返回Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG1[2] = 0;
+		printf("[返回Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G1P2);
 
@@ -734,13 +682,8 @@ void G1GetKey(void)
     }
     if((SampleRefnumG1[3] - SampleNumG1[3]) > 0x20)
     {
-        TouchFlagG1[3] = 1;
 		KeyValue = 9;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG1[3] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G1P3);
 }
@@ -801,13 +744,8 @@ void G2GetKey(void)
 	
     if((SampleRefnumG2[2]-SampleNumG2[2]) > 0x20)
     {
-        TouchFlagG2[2] = 1;
         KeyValue = 8;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG2[2] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G2P2);
 
@@ -821,13 +759,8 @@ void G2GetKey(void)
     }
     if((SampleRefnumG2[3] - SampleNumG2[3]) > 0x20)
     {
-        TouchFlagG2[3] = 1;
 		KeyValue = 7;
-		CL_LOG("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-        TouchFlagG2[3] = 0;
+		printf("[Key: %d]\n", KeyValue);
     }
     tsi_channel_pin_disable(TSI_CHCFG_G2P3);
 }
@@ -862,7 +795,7 @@ void GetKey(void)
 	G2GetKey();
 	G3GetKey();
 	G5GetKey();
-	key_onclick_callback(KeyValue);
+	KeyCallBack(KeyValue);
 }
 
 

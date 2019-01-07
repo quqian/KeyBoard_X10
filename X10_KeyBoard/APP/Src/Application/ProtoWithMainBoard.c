@@ -200,7 +200,7 @@ int PCBBumUpLoad(uint8_t *pcb)
     FeedWatchDog();
 	memcpy(PcbAck->Pcb, pcb, 8);
     App_CB_SendData(pBuff, sizeof(PCB_INFO_STR), MsgType_ALL, CMD_READ_PCB);
-	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(PCB_INFO_STR) + sizeof(CB_HEAD_STR) + 2);
+//	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(PCB_INFO_STR) + sizeof(CB_HEAD_STR) + 2);
     
     return 0;
 }
@@ -214,7 +214,7 @@ int SyncSystemInfo(void)
     FeedWatchDog();
 	memcpy(SystemInfoAck, &SystemInfo, sizeof(SystemInfo));
     App_CB_SendData(pBuff, sizeof(SYSTEM_INFO_T), MsgType_ALL, CMD_UP_SYSTEM_INFO);
-	PrintfData("SyncSystemInfo", (uint8_t*)pBuff, sizeof(SYSTEM_INFO_T) + sizeof(CB_HEAD_STR) + 2);
+//	PrintfData("SyncSystemInfo", (uint8_t*)pBuff, sizeof(SYSTEM_INFO_T) + sizeof(CB_HEAD_STR) + 2);
     
     return 0;
 }
@@ -244,7 +244,7 @@ int CardNumUpLoad(unsigned char result,unsigned char *cardNum)
 	memcpy(CardAck->Data, cardNum, 16);
 	
     App_CB_SendData(pBuff, sizeof(READ_CARDINFO_ACK_STR), MsgType_CARD, CMD_CARD_READ);
-	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(READ_CARDINFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
+//	PrintfData("CardNumUpLoad", (uint8_t*)pBuff, sizeof(READ_CARDINFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
     
     return 0;
 }
@@ -260,7 +260,7 @@ int CardTypeUpLoad(uint8_t cardType,uint8_t *serialNum)
 	memcpy(CardAck->CardSn, serialNum, 4);
 	
     App_CB_SendData(pBuff, sizeof(CARDINFO_STR), MsgType_CARD, CMD_CARD_UP);
-	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(CARDINFO_STR) + sizeof(CB_HEAD_STR) + 2);
+//	PrintfData("CardTypeUpLoad", (uint8_t*)pBuff, sizeof(CARDINFO_STR) + sizeof(CB_HEAD_STR) + 2);
     
     return 0;
 }
@@ -282,7 +282,7 @@ int WriteCardBlockSuccessUpLoad(uint8_t result)
 	WriteCardAck->result = result;
 	
     App_CB_SendData(pBuff, sizeof(WRITE_CARDINFO_ACK_STR), MsgType_CARD, CMD_CARD_WRITE);
-	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(WRITE_CARDINFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
+//	PrintfData("WriteCardBlockSuccessUpLoad", (uint8_t*)pBuff, sizeof(WRITE_CARDINFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
     
     return 0;
 }
@@ -366,27 +366,26 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 sector = pBuff->data[6];
                 block = pBuff->data[7];
 //                sectorBlock = sector*4 + block;
-                CL_LOG("寻卡\r\n");
+                printf("寻卡, sector = %d, block = %d \r\n", sector, block);
                 //寻卡
                 if (TypeA_CardActivate(PICC_ATQA1, PICC_UID1, PICC_SAK1) != OK)
                 {
                     TypeA_Halt();
                     CardNumUpLoad(1, block_data);
-                    CL_LOG("Card Author failed.\r\n");
+                    printf("Card Author failed.\r\n");
                     return;
                 }
-                //Debug_Log("寻卡通过\r\n");
-                //Debug_Log("PICC_ATQA1:");
-                //Debug_Hex(PICC_ATQA1,2);
-                //Debug_Log("\r\n");
+			//	CL_LOG("寻卡通过.\r\n");
+			//	PrintfData("aaa PICC_UID1:", PICC_UID1, 4);
+            //	PrintfData("aaa PICC_ATQA1:", PICC_ATQA1, 2);
                 ////M1卡
-                if(PICC_ATQA1[0]!=0x04)
-                {
-                    TypeA_Halt();
-                    CardNumUpLoad(1, block_data);
-                    CL_LOG("Card Author failed.\r\n");
-                    return;
-                }
+//                if(PICC_ATQA1[0]!=0x04)
+//                {
+//                    TypeA_Halt();
+//                    CardNumUpLoad(1, block_data);
+//                    CL_LOG("Card Author failed.\r\n");
+//                    return;
+//                }
 
                 //Debug_Log("密码认证\r\n");
                 //密码认证
@@ -394,10 +393,10 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 {
                     TypeA_Halt();
                     CardNumUpLoad(1, block_data);
-                    CL_LOG("Card Author failed.\r\n");
+                    printf("密码认证没有通过\r\n");
                     return;
                 }
-                //Debug_Log("密码认证通过\r\n");
+             //   CL_LOG("密码认证通过\r\n");
 
                 //Debug_Log("读块");
                 //Debug_Hex(&sectorBlock, 1);
@@ -407,7 +406,7 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 {
                     TypeA_Halt();
                     CardNumUpLoad(1,block_data);
-                    CL_LOG("Card Author failed.\r\n");
+                    printf("Card Author failed.\r\n");
                     return;
                 }
                 //Debug_Log("读块");
@@ -448,50 +447,46 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
             //Debug_Hex(&st.msg[0],16+8);
             //Debug_Log("\r\n");
 
-            CL_LOG("写卡寻卡\r\n");
+          //  CL_LOG("写卡寻卡\r\n");
             TypeA_Halt();
             //寻卡
             if (TypeA_CardActivate(PICC_ATQA1,PICC_UID1,PICC_SAK1) != CL_OK)
             {
-                CL_LOG("WRITE failed.\r\n");
+                printf("WRITE failed.\r\n");
                 TypeA_Halt();
                 WriteCardBlockSuccessUpLoad(WRITE_ERROR);
                 return;
             }
-            //Debug_Log("写卡寻卡通过\r\n");
+         //   CL_LOG("写卡寻卡通过\r\n");
             //Debug_Log("写卡密码认证 \r\n");
             //密码认证
             if(Mifare_Auth(0, sector, keyA, PICC_UID1) != OK)
             {
-                CL_LOG("WRITE failed.\r\n");
+                printf("WRITE failed.\r\n");
                 TypeA_Halt();
                 WriteCardBlockSuccessUpLoad(WRITE_ERROR);
                 return;
             }
-            //Debug_Log("写卡密码认证通过\r\n");
-
-           // Debug_Log("写卡数据到块");
-            //Debug_Hex(&sectorBlock,1);
-            //Debug_Log("\r\n");
-
-            //Debug_Log("写到卡数据 :");
-            //Debug_Hex(((WRITE_CARD_REQ_STR*)st.msg)->blockData,16);
-            //Debug_Log("\r\n");
+         //   CL_LOG("写卡密码认证通过\r\n");
+		//	CL_LOG("写卡数据到块: %d\r\n", sectorBlock);
+		//	PrintfData("写到卡数据 :", ((WRITE_CARDINFO_STR*)pBuff->data)->blockData, 16);
+           
             switch(sectorBlock)
             {
                 case 8:
-                    //Debug_Log("写块8校验\r\n");
+                    //printf("写块8校验\r\n");
                     if(((WRITE_CARDINFO_STR*)pBuff->data)->blockData[15] == GetPktSum(&((WRITE_CARDINFO_STR*)pBuff->data)->blockData[0], 15))
                     {
-                        //Debug_Log("写卡块8校验通过\r\n");
-                        //Debug_Log("写卡块8\r\n");
+                        //printf("写卡块8校验通过\r\n");
+                        //printf("写卡块8\r\n");
                         if(OK != Mifare_Blockwrite(8, &((WRITE_CARDINFO_STR*)pBuff->data)->blockData[0]))
                         {
-                            CL_LOG("写卡块8失败\r\n");
+                            printf("写卡块8失败\r\n");
                             WriteCardBlockSuccessUpLoad(WRITE_ERROR);
                         }
-                        else{
-                            //Debug_Log("写卡块8成功\r\n");
+                        else
+						{
+                            //printf("写卡块8成功\r\n");
                             WriteCardBlockSuccessUpLoad(WRITE_SUCCESS);
                         }
                     }
@@ -499,11 +494,12 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 default:
                     if(OK != Mifare_Blockwrite(sectorBlock, &((WRITE_CARDINFO_STR*)pBuff->data)->blockData[0]))
                     {
-                        CL_LOG("写卡块x失败\r\n");
+                        printf("写卡块x失败\r\n");
                         WriteCardBlockSuccessUpLoad(WRITE_ERROR);
                     }
-                    else{
-                        //Debug_Log("写卡块x成功\r\n");
+                    else
+					{
+                      //  printf("写卡块x成功\r\n");
                         WriteCardBlockSuccessUpLoad(WRITE_SUCCESS);
                     }
                 break;
