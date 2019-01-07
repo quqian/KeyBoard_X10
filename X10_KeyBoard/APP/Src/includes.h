@@ -54,7 +54,6 @@
 #define Feed_WDT						FeedWatchDog
 
 
-#define RTC_TIMER_STAMEP                ((long long)(3152966400))
 
 #define CL_LOG(fmt,args...) do {    \
     printf("[X10KB %s] %s:(%d) " fmt, GetCurrentTime(), __func__, __LINE__, ##args); \

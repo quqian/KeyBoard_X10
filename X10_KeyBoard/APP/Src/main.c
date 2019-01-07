@@ -104,7 +104,6 @@ int main(void)
             //    CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
                 #if 0
                 timeaaa = GetRtcTimeStamp();
-                timeaaa = ((long long)(RTC_TIMER_STAMEP) + timeaaa);
                 CL_LOG("Ê±¼ä´Á[%d]\n", (uint32_t)timeaaa);
                 #endif
             }

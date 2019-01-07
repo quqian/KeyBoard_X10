@@ -81,7 +81,6 @@ void DebugPktProc(OUT_PKT_STR *pBuff, uint16_t len)
             CL_LOG("DEBUG_CMD_RED_RTC \n");
             
             timeStamp = GetRtcTimeStamp();
-            timeStamp = ((long long)(RTC_TIMER_STAMEP) + timeStamp);
             CL_LOG("GET RTCÊ±¼ä´Á[%d]\n", (uint32_t)timeStamp);
 			pBuff->data[0] = (timeStamp>> 24) & 0xff;
             pBuff->data[1] = (timeStamp>> 16) & 0xff;

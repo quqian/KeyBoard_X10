@@ -273,6 +273,13 @@ int64_t GetRtcTimeStamp(void)
     
 //    printf("\naaaaa[%d,%d,%d,%d,%d,%d] \n", TimeTickss.tm_year, TimeTickss.tm_mon, 
 //    TimeTickss.tm_mday, TimeTickss.tm_hour, TimeTickss.tm_min, TimeTickss.tm_sec);
+    TimeTickss.tm_year += 100;
+    TimeTickss.tm_mon -= 1;
+    TimeTickss.tm_mday = BCD2HEX(RtcData.rtc_date);
+    TimeTickss.tm_wday = BCD2HEX(RtcData.rtc_day_of_week);
+    TimeTickss.tm_hour -= 8;
+    TimeTickss.tm_min = BCD2HEX(RtcData.rtc_minute);
+    TimeTickss.tm_sec = BCD2HEX(RtcData.rtc_second);
     
     return mktime(&TimeTickss);
 }
