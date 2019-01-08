@@ -372,7 +372,8 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 {
                     TypeA_Halt();
                     CardNumUpLoad(1, block_data);
-                    printf("Card Author failed.\r\n");
+					GlobalInfo.cardFlag = 1;
+                    printf("寻卡失败.\r\n");
                     return;
                 }
 			//	CL_LOG("寻卡通过.\r\n");
@@ -393,7 +394,7 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 {
                     TypeA_Halt();
                     CardNumUpLoad(1, block_data);
-                    printf("密码认证没有通过\r\n");
+                    printf("密码认证失败\r\n");
                     return;
                 }
              //   CL_LOG("密码认证通过\r\n");
@@ -406,7 +407,8 @@ void MainBoardCardInfo(CB_STR_t *pBuff, uint16_t len)
                 {
                     TypeA_Halt();
                     CardNumUpLoad(1,block_data);
-                    printf("Card Author failed.\r\n");
+					GlobalInfo.cardFlag = 1;
+                    printf("读数据块失败.\r\n");
                     return;
                 }
                 //Debug_Log("读块");

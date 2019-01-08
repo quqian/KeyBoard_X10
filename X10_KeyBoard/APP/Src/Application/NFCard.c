@@ -76,8 +76,6 @@ void Check_M1_Card(void)
         {
          // PrintfData("PICC_UID:", PICC_UID,4);
          // PrintfData("PICC_ATQA1:", PICC_ATQA,2);
-			ReadCardTicks = GetTimeTicks();
-            GlobalInfo.cardFlag = 0;
             
          //   if(PICC_ATQA[0] == 0x04)  //M1¿¨
             {
@@ -94,13 +92,13 @@ void Check_M1_Card(void)
                 TypeA_Halt();
                 if(0 < result)  //·ñÔòÊÇ·ÇÃÜÔ¿¿¨
                 {
+                	ReadCardTicks = GetTimeTicks();
+            		GlobalInfo.cardFlag = 0;
                     return;
                 }
             }
             if ((TypeA_CardActivate(PICC_ATQA,PICC_UID,PICC_SAK) == OK))
             {
-                ReadCardTicks = GetTimeTicks();
-                GlobalInfo.cardFlag = 0;
              //   if(PICC_ATQA[0]==0x04)  //M1¿¨
                 {
                     if(Mifare_Auth(0, (ENTRANCE_GUARD_CARD_SECTOR_OFFSET + 2), SecretCardKEY_A,PICC_UID) == OK)
@@ -110,11 +108,15 @@ void Check_M1_Card(void)
 
                         CardTypeUpLoad(1, PICC_UID);
                         //Debug_Log("ÃÜÔ¿¿¨ÉÈÇø12.\n");
+                        ReadCardTicks = GetTimeTicks();
+                		GlobalInfo.cardFlag = 0;
                     }
                     else if(0 == result)  //·ñÔòÊÇ·ÇÃÜÔ¿¿¨
                     {
 						printf("·ÇÃÜÔ¿¿¨\n");
                         CardTypeUpLoad(2, PICC_UID);
+						ReadCardTicks = GetTimeTicks();
+                		GlobalInfo.cardFlag = 0;
                     }
                     TypeA_Halt();
                     return;
