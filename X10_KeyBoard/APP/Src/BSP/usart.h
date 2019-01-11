@@ -32,6 +32,7 @@ extern void PrintfData(void *pfunc, uint8_t *pdata, int len);
 extern int UsartSend(uint8_t portIndex,char *data,uint16_t len);
 extern void UsartInit(void);
 extern int UsartGetOneData(int portIndex, uint8_t *pData);
+extern int UARTx_Init(uint8_t index, ControlStatus intEnable, uint32_t Baud);
 
 #endif
 

@@ -20,7 +20,7 @@ GLOBAL_INFO_T	GlobalInfo = {0,};
 
 
 
-int GetPktSum(uint8_t *pData, uint16_t len)
+uint8_t GetPktSum(uint8_t *pData, uint16_t len)
 {
     uint32_t i;
     uint8_t sum = 0;

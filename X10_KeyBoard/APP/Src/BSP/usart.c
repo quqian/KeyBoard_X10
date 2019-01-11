@@ -28,7 +28,7 @@ UART_INFO_STR UartPortHandleInfo[UART_COM_NUM] = {0,};
 //uint32_t GPIO_PIN_TX[UART_COM_NUM] = 		{GPIO_PIN_9,  	GPIO_PIN_2};
 //uint32_t GPIO_PIN_RX[UART_COM_NUM] = 		{GPIO_PIN_10, 	GPIO_PIN_3};
 
-
+uint32_t GPIO_AF_X[UART_COM_NUM] =          {GPIO_AF_0,     GPIO_AF_1};
 uint32_t USARTX[UART_COM_NUM] = 			{USART0, 		USART1};
 rcu_periph_enum RCU_GPIOX[UART_COM_NUM] = 	{RCU_GPIOB,     RCU_GPIOA};
 rcu_periph_enum RCU_USARTX[UART_COM_NUM] = {RCU_USART0,    RCU_USART1};
@@ -117,8 +117,8 @@ int UARTx_Init(uint8_t index, ControlStatus intEnable, uint32_t Baud)
     rcu_periph_clock_enable(RCU_GPIOX[index]);
     rcu_periph_clock_enable(RCU_USARTX[index]);
 
-	gpio_af_set(RCU_USART_TX_PORT[index], GPIO_AF_1, GPIO_PIN_TX[index]);
-    gpio_af_set(RCU_USART_RX_PORT[index], GPIO_AF_1, GPIO_PIN_RX[index]);
+	gpio_af_set(RCU_USART_TX_PORT[index], GPIO_AF_X[index], GPIO_PIN_TX[index]);
+    gpio_af_set(RCU_USART_RX_PORT[index], GPIO_AF_X[index], GPIO_PIN_RX[index]);
 
     gpio_mode_set(RCU_USART_TX_PORT[index], GPIO_MODE_AF, GPIO_PUPD_PULLUP, GPIO_PIN_TX[index]);
     gpio_output_options_set(GPIO_PIN_TX[index], GPIO_OTYPE_PP, GPIO_OSPEED_MAX, GPIO_PIN_TX[index]);
@@ -189,7 +189,7 @@ int UsartGetOneData(int portIndex, uint8_t *pData)
 
 void UsartInit(void)
 {
-    UARTx_Init(DEBUG_INDEX, ENABLE, 19200);
+//    UARTx_Init(DEBUG_INDEX, ENABLE, 19200);	//ÉÏÎ»»ú //À¶ÑÀ
     UARTx_Init(1, ENABLE, 115200);
 }
 

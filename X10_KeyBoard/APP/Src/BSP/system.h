@@ -23,7 +23,7 @@ typedef struct
 	unsigned char soft_version;
     unsigned char blue_state;
     unsigned char blue_version[20];
-    unsigned char blue_name[12];
+    char blue_name[12];
     unsigned char gw_mac[5];
 }SYSTEM_INFO_T;
 
@@ -43,6 +43,7 @@ typedef struct{
 
 typedef struct
 {
+	uint8_t  station_id[8]; 					// bcd, SN=10, 10 byte	0001123456789
 	uint8_t  current_usr_card_id[16];       	//刷卡获取的卡号
 	uint8_t  card_id[5];       			//刷卡获取的卡号
 //	uint8_t card_state;                         //读卡器状态  0 :表示初始化ok 1: 表示初始化出错
@@ -62,6 +63,10 @@ typedef struct
 	rtc_parameter_struct RtcData;
 	rtc_alarm_struct  rtc_alarm;
 	uint8_t cardFlag;
+	uint8_t isBuleConnect;
+	uint32_t lastConnectTime;
+	uint32_t blueTestTime;
+	uint8_t rebootBlueCnt;
 }GLOBAL_INFO_T;
 
 extern void WatchDogInit(void) ;
@@ -74,7 +79,7 @@ extern void MuxSempGive(uint8_t *pSemp);
 extern uint8_t Asc2Int(char ch);
 extern int StringToBCD(unsigned char *BCD, const char *str);
 extern char *BCDToString(char *dest, unsigned char *BCD, int bytes);
-extern int GetPktSum(uint8_t *pData, uint16_t len);
+extern uint8_t GetPktSum(uint8_t *pData, uint16_t len);
 extern void TimerConfig(uint8_t Index, uint32_t Period, uint8_t UserIrq);
 extern uint32_t GetTimeTicks(void);
 

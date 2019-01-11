@@ -34,6 +34,7 @@
 #include "ComProto.h"
 #include "led.h"
 #include "tsiKey.h"
+#include "App_BlueProto.h"
 
 
 
@@ -60,6 +61,13 @@ void BspInit(void)
     SystemResetRecord();
     printf("UsartInit OK!\r\n");
 	TsiKeyInit();
+#if EN_BLUETOOTH
+    //蓝牙接口初始化
+    Bluetooth_Init();
+#else
+    SystemInfo.blue_state = 1;
+    SystemStatus.blue_state = 1;
+#endif
 //    SC8042B_Init();
 	FM175XX_Config();
 
@@ -89,14 +97,19 @@ int main(void)
     nvic_priority_group_set(NVIC_PRIGROUP_PRE4_SUB0);		//设置系统中断优先级分组4	
 	
     BspInit();
-	
+	BuleReconnect();
+    
 	while(1)
     {
         FeedWatchDog();
 		
+ //       BlueSendCmd("AT\r\n", "OK", 3000);
+        #if EN_BLUETOOTH
+            //蓝牙
+            HandleBlueMsg();
+        #endif
 		TimeFlagTicks = GetTimeTicks();
         {
-        #if 1
 			if(((GreenLedTicks + 500) <= GetTimeTicks()) || (GreenLedTicks > GetTimeTicks()))
             {
                 GreenLedTicks = GetTimeTicks();
@@ -117,12 +130,12 @@ int main(void)
 			//处理通信数据
             ComRecvMainBoardData();
  			 
-			if((((NFCardTicks + 1000) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks)) && (0 == SystemStatus.card_state))
+			if((((NFCardTicks + 100) <= TimeFlagTicks) || (NFCardTicks > TimeFlagTicks)) && (0 == SystemStatus.card_state))
             {
                 NFCardTicks = TimeFlagTicks;
 				if(GlobalInfo.UpgradeFlag != 0xa5)
 				{
-					//if(CL_OK == BswDrv_FM175XX_SetPowerDown(0)) 	//退出睡眠
+				//	if(CL_OK == BswDrv_FM175XX_SetPowerDown(0)) 	//退出睡眠
 					{
 						NFCardTask();
 					}
@@ -136,7 +149,7 @@ int main(void)
                 ReadCardTicks = GetTimeTicks();
 				GlobalInfo.cardFlag = 1;
             }
-            DebugRecvProc();
+         //   DebugRecvProc();
 			//同步系统信息到X10p
 			if((0 == isSyncSystemInfo) && (((SystemTimerTicks + 5000) <= TimeFlagTicks) || (SystemTimerTicks > TimeFlagTicks)))
             {
@@ -151,6 +164,49 @@ int main(void)
 
 	            SyncSystemState();
 	        }
+
+			
+		#if EN_BLUETOOTH
+            //如果没有蓝牙链接，定期检测CK模块是否正常工作
+            if(SystemStatus.blue_state == 0                            //认为当前蓝牙状态是OK的
+                && GlobalInfo.isBuleConnect == 0                                   //没有APP链接到蓝牙
+                && (GetTimeTicks() - GlobalInfo.blueTestTime >= 60000))  //1分钟监测一次
+            {
+                GlobalInfo.blueTestTime = GetTimeTicks();
+                if(BlueTest(1) != OK)
+				{
+                    CL_LOG("检测蓝牙错误.\n");
+                    SystemStatus.blue_state = 1;
+                    GlobalInfo.rebootBlueCnt++;
+                }
+				else
+				{
+                    SystemStatus.blue_state = 0;
+                    GlobalInfo.rebootBlueCnt = 0;
+                    CL_LOG("蓝牙检测成功.\n");
+                }
+            }
+
+			#if 0
+             //如果蓝牙异常，重启蓝牙设备，最多重启3次
+            if(SystemInfo.blue_state ==0               		//有蓝牙设备
+                && GlobalInfo.rebootBlueCnt <= 5                   //重启次数
+                && SystemStatus.blue_state == 1)			//当前获取不到蓝牙信息
+           	{      
+				if(BuleReset_Async() == OK)
+			   	{
+                    CL_LOG("复位蓝牙.\n");
+                    GlobalInfo.blueTestTime = GetTimeTicks() - (55000);
+               }
+            }
+			#endif
+            //判断蓝牙是否链接  2分钟没有收到数据就认为空闲
+            if(GlobalInfo.isBuleConnect == 1 && (GetTimeTicks() - GlobalInfo.lastConnectTime > 120000))
+			{
+                GlobalInfo.lastConnectTime = GetTimeTicks();
+                GlobalInfo.isBuleConnect = 0;
+                CL_LOG("打开检测蓝牙标志.\n");
+            }
 		#endif
         }
     }

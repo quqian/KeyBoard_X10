@@ -38,6 +38,11 @@ enum{
 //	ENUM_SEND_UPGRADE_PKT = 0x02,
 	//按键上报
 	CMD_KEY          		= 0x01,
+
+	CMD_SET_BLUE_NAME   	= 0x01,  //设置蓝牙名称
+	CMD_SET_BLUE_MAC    	= 0x02,  //设置网关地址
+	CMD_BLUE_SEND       	= 0x03,  //发送消息
+	CMD_BLUE_RECV       	= 0x04,  //接收消息
 };
 
 typedef enum {

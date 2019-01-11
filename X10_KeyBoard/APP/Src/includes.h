@@ -52,6 +52,7 @@
 
 
 #define Feed_WDT						FeedWatchDog
+#define EN_BLUETOOTH					1
 
 
 

@@ -3,6 +3,9 @@
 #include "system.h"
 #include "usart.h"
 #include "rtc.h"
+#include "NFCard.h"
+#include "App_BlueProto.h"
+
 
 
 
@@ -173,7 +176,7 @@ void App_CB_SendData(CB_STR_t *ptk,uint16_t len, uint8_t  module, uint8_t  cmd)
     ptk->data[len + 1] = 0x0d;
     ptk->data[len + 2] = 0x0a;
     
-	UsartSend(RS232_INDEX, (void*)ptk, sizeof(CB_HEAD_STR) + len + 1);
+	UsartSend(RS232_INDEX, (void*)ptk, sizeof(CB_HEAD_STR) + len + 1 + 2);
 }
 
 //发送响应消息
@@ -334,6 +337,78 @@ void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
             CL_LOG("错误.\n");
 		return;
 	}
+}
+
+void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
+{
+	uint8_t pcb[8];
+	uint8_t str_mac[11];
+	
+#if EN_BLUETOOTH
+	if(SystemStatus.blue_state == 0)
+	{
+    	switch (pBuff->head.cmd) 
+		{
+			case CMD_SET_BLUE_NAME:		//设置蓝牙名称
+				CL_LOG("收到蓝牙名字[%s].\n", pBuff->data);
+				if(SetBlueName((char*)pBuff->data) == OK)
+				{
+					SendMsg_ACK(MsgType_BLUE, CMD_SET_BLUE_NAME, 0);
+				}
+				else
+				{
+					SendMsg_ACK(MsgType_BLUE, CMD_SET_BLUE_NAME, 1);
+				}
+			return;
+			case CMD_SET_BLUE_MAC:		//设置网关地址
+				BCDToString((char*)str_mac, pBuff->data, 5);
+				if(SetGW_MacAddr((char*)str_mac) == OK)
+				{
+					SendMsg_ACK(MsgType_BLUE, CMD_SET_BLUE_MAC, 0);
+				}
+				else
+				{
+					SendMsg_ACK(MsgType_BLUE, CMD_SET_BLUE_MAC, 1);
+				}
+			return;
+			case CMD_BLUE_SEND:			//发送消息的响应
+				
+			return;
+			case CMD_BLUE_RECV:			//接收消息 - 消息转发
+				if(pBuff->head.len >= 3)
+				{
+					BLUE_PKT_STR stk;
+					MSG_STR *ReceiveMsgData = (MSG_STR*)pBuff->data;
+					uint8_t nodeType = ReceiveMsgData->MSG_Type;//pBuff->data[0];	//0：蓝牙；1：2.4G
+					uint32_t len = ReceiveMsgData->MSG_Len;//(unsigned int)(pBuff->data[1] | pBuff->data[2]<<8);
+					
+					memset(&stk, 0, sizeof(BLUE_PKT_STR));
+					//转发数据到蓝牙、2.4G
+					#if 0
+					SendCKB24Pkt(nodeType, (BLUE_PKT_STR*)&stk, stk.head.len);
+					if(SendBlueData(nodeType, pBuff->data + 3, len) == OK)
+					{
+						//响应包
+						SendMsg_ACK(MsgType_BLUE, CMD_BLUE_RECV,0);
+					}
+					else
+					{
+						//响应包
+						SendMsg_ACK(MsgType_BLUE, CMD_BLUE_RECV, 1);
+					}
+					#endif
+				}
+				else
+				{
+					SendMsg_ACK(MsgType_BLUE, CMD_BLUE_RECV, 1);
+				}
+			return;
+			default:
+	            CL_LOG("错误.\n");
+			return;
+		}
+	}
+#endif
 }
 
 #define M1_CARD_BLOCK_LENTH      16
@@ -666,10 +741,14 @@ void MainBoardPktProc(CB_STR_t *pBuff, uint16_t len)
 		case MsgType_KEY:
 		break;
 		case MsgType_CARD:
-			MainBoardCardInfo(pBuff, len);
+		//	if(CL_OK == BswDrv_FM175XX_SetPowerDown(0)) 	//退出睡眠
+			{
+				MainBoardCardInfo(pBuff, len);
+			}
+		//	BswDrv_FM175XX_SetPowerDown(1);			//进入睡眠
 		break;
 		case MsgType_BLUE:
-			
+			GetBlueInfo(pBuff, len);
 		break;
 	}
 }
