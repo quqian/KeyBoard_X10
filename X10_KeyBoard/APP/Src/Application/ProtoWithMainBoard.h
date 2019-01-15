@@ -19,30 +19,29 @@ enum{
     MsgType_KEY 			= 1,
     MsgType_CARD 			= 2,
     MsgType_BLUE 			= 3,
-    
-	//ENUM_SHAKE_HAND = 0x01,
-	//ENUM_HEART_BEAT = 0x02,
+    ENUM_MODUL_UPGRADE		= 4,
+    //
 	CMD_UP_SYSTEM_INFO 		= 0x01,  //上报基本信息
 	CMD_SYSTEM_OPERATE  	= 0x02,  //系统操作
 	CMD_UP_SYSTEM_STATE 	= 0x03,  //状态上报
 	CMD_WRITE_PCB       	= 0x04,  //写PCB编码
 	CMD_READ_PCB        	= 0x05,  //读PCB
-	
-//	ENUM_READ_CARD = 0x01,
-//	ENUM_WRITE_CARD = 0x02,
+	//
 	CMD_CARD_UP      		= 0x01, //上报卡类型
 	CMD_CARD_READ    		= 0x02, //读卡
 	CMD_CARD_WRITE   		= 0x03, //写卡
 
-//	ENUM_UPGRADE_REQUEST = 0x01,
-//	ENUM_SEND_UPGRADE_PKT = 0x02,
 	//按键上报
 	CMD_KEY          		= 0x01,
-
+	//
 	CMD_SET_BLUE_NAME   	= 0x01,  //设置蓝牙名称
 	CMD_SET_BLUE_MAC    	= 0x02,  //设置网关地址
 	CMD_BLUE_SEND       	= 0x03,  //发送消息
 	CMD_BLUE_RECV       	= 0x04,  //接收消息
+
+	//
+	ENUM_UPGRADE_REQUEST 	= 0x01,
+	ENUM_SEND_UPGRADE_PKT 	= 0x02,
 };
 
 typedef enum {

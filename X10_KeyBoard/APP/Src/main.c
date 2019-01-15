@@ -102,7 +102,7 @@ int main(void)
 	while(1)
     {
         FeedWatchDog();
-		
+	//	CL_LOG("blue name:%s.\n", SystemInfo.blue_name);
  //       BlueSendCmd("AT\r\n", "OK", 3000);
         #if EN_BLUETOOTH
             //А¶СА

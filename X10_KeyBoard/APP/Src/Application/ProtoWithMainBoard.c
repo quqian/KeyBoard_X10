@@ -230,6 +230,7 @@ int SyncSystemState(void)
 	SYSTEM_STATUS_T* SystemStatusAck = (SYSTEM_STATUS_T*)pBuff->data;
 
 	memcpy(&SystemStatusAck->system_state, &SystemStatus, sizeof(SystemStatus));
+	SystemStatusAck->FwVer = FW_VERSION;
     App_CB_SendData(pBuff, sizeof(SYSTEM_STATUS_T), MsgType_ALL, CMD_UP_SYSTEM_STATE);
 //	PrintfData("SyncSystemState", (uint8_t*)pBuff, sizeof(SYSTEM_STATUS_T) + sizeof(CB_HEAD_STR) + 2);
     
@@ -300,7 +301,7 @@ void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
 	{
 		case CMD_UP_SYSTEM_INFO:
 			isSyncSystemInfo = 1;
-            CL_LOG("recv system info ack..\n");
+            CL_LOG("接收到基本信息应答.\n");
 		return;
 		case CMD_SYSTEM_OPERATE:
 		{
@@ -324,6 +325,7 @@ void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
         }
 		return;
 		case CMD_UP_SYSTEM_STATE:
+			
             return;
 		case CMD_WRITE_PCB:		//写PCB
 			FlashWrite(PCB_INFO, &pBuff->data[0], 8);
@@ -343,7 +345,8 @@ void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 {
 	uint8_t pcb[8];
 	uint8_t str_mac[11];
-	
+	uint8_t nodeType = 0;	//0：蓝牙；1：2.4G
+    
 #if EN_BLUETOOTH
 	if(SystemStatus.blue_state == 0)
 	{
@@ -361,6 +364,7 @@ void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 				}
 			return;
 			case CMD_SET_BLUE_MAC:		//设置网关地址
+				CL_LOG("设置网关地址[%s].\n", pBuff->data);
 				BCDToString((char*)str_mac, pBuff->data, 5);
 				if(SetGW_MacAddr((char*)str_mac) == OK)
 				{
@@ -379,9 +383,9 @@ void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 				{
 					BLUE_PKT_STR stk;
 					MSG_STR *ReceiveMsgData = (MSG_STR*)pBuff->data;
-					uint8_t nodeType = ReceiveMsgData->MSG_Type;//pBuff->data[0];	//0：蓝牙；1：2.4G
 					uint32_t len = ReceiveMsgData->MSG_Len;//(unsigned int)(pBuff->data[1] | pBuff->data[2]<<8);
-					
+                    
+					nodeType = ReceiveMsgData->MSG_Type;//pBuff->data[0];	//0：蓝牙；1：2.4G
 					memset(&stk, 0, sizeof(BLUE_PKT_STR));
 					//转发数据到蓝牙、2.4G
 					#if 0
@@ -409,6 +413,138 @@ void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 		}
 	}
 #endif
+}
+
+int UpgradeRequestAck(uint8_t result)
+{
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	START_UPGRADE_REQUEST_ACK_STR* UpgradeAck = (START_UPGRADE_REQUEST_ACK_STR*)(pBuff->data);
+	
+	UpgradeAck->result = result;
+	App_CB_SendData(pBuff, sizeof(START_UPGRADE_REQUEST_ACK_STR), ENUM_MODUL_UPGRADE, ENUM_UPGRADE_REQUEST);
+	PrintfData("UpgradeRequestAck", (uint8_t*)pBuff, sizeof(START_UPGRADE_REQUEST_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
+    
+    return CL_OK;
+}
+
+int UpgradeRequestHandler(CB_STR_t *pBuff, uint16_t len)
+{
+	uint32_t i = 0;
+	pSTART_UPGRADE_REQUEST_STR pUpgradeRequest = (START_UPGRADE_REQUEST_STR*)(pBuff->data);;
+	
+	UpgradeRequestArray.filesize = pUpgradeRequest->filesize;
+	UpgradeRequestArray.package = pUpgradeRequest->package;
+	UpgradeRequestArray.checkSum = pUpgradeRequest->checkSum;
+	UpgradeRequestArray.fw_verson = pUpgradeRequest->fw_verson;
+	CL_LOG("filesize[%#x], package[%#x], checkSum[%#x], fw_verson[%#x].\n", UpgradeRequestArray.filesize, UpgradeRequestArray.package, UpgradeRequestArray.checkSum, UpgradeRequestArray.fw_verson);
+	
+	GlobalInfo.UpgradeFw.CurrentPackage = 1;
+	GlobalInfo.UpgradeFw.lastIndex = 0;
+	GlobalInfo.UpgradeFw.ReceiveSize = 0;
+	if((0 == UpgradeRequestArray.filesize) || (0 == UpgradeRequestArray.package)/* || 
+		(UpgradeRequestArray.fw_verson == FW_VERSION)*/)
+	{
+        CL_LOG("filesize or package or fw_verson, error!!!");
+		return CL_FAIL;
+	}
+#if 1
+	fmc_unlock();
+	for (i = 0; i < (uint32_t)(APP_FW_SIZE / FLASH_PAGE_SIZE); i++)     //擦除APP程序区 
+    {
+		fmc_page_erase(AppUpBkpAddr + i * FLASH_PAGE_SIZE);//擦除这个扇区
+		fmc_flag_clear(FMC_FLAG_END | FMC_FLAG_WPERR | FMC_FLAG_PGERR);
+    }
+	fmc_lock();
+#endif
+
+	return CL_OK;
+}
+
+int SendUpgradePackageAck(uint8_t result, uint32_t index)
+{
+	uint8_t FrameBuff[128] = {0,};
+	CB_STR_t * pBuff = (void*)FrameBuff;
+	DOWN_LOAD_FW_STR_ACK* SendUpgradeAck = (DOWN_LOAD_FW_STR_ACK*)(pBuff->data);
+	
+	SendUpgradeAck->result = result;
+	SendUpgradeAck->index = index;
+//	CL_LOG("应答数据 %d, %d\n", SendUpgradeAck->result, SendUpgradeAck->index);
+	App_CB_SendData(pBuff, sizeof(DOWN_LOAD_FW_STR_ACK), ENUM_MODUL_UPGRADE, ENUM_SEND_UPGRADE_PKT);
+//	PrintfData("SendUpgradePackageAck", (uint8_t*)pBuff, sizeof(DOWN_LOAD_FW_STR_ACK) + sizeof(CB_HEAD_STR) + 2);
+    
+    return CL_OK;
+}
+
+int SendUpgradePackage(CB_STR_t *pBuff, uint16_t len)
+{
+	int ret = 0;
+	uint8_t result = 0;
+	pDOWN_LOAD_FW_STR DownLoadData = (pDOWN_LOAD_FW_STR)(pBuff->data);
+	
+//	CL_LOG("aaaaaaaaaaaa[%d]!\n", DownLoadData->index);
+	
+	//GetPktSum(uint8_t *pData, uint16_t len);
+	if(GlobalInfo.UpgradeFlag != 0xa5)
+	{
+		result = 1;
+    	goto SendUpgradeAck;
+	}
+	ret = COM_Upgrade_Write(&DownLoadData->index, len);
+	if(ret == 2)
+    {
+    	SendUpgradePackageAck(0, DownLoadData->index);
+		DelayMsWithNoneOs(1000);
+		PlayVoice(VOIC_DEVICE_REBOOT);
+		CL_LOG("DEBUG_CMD_REBOOT重启系统！\n");
+		GlobalInfo.UpgradeFlag = 0;
+		DelayMsWithNoneOs(1000);
+		NVIC_SystemReset();
+	}
+	if(ret == 0)
+    {
+		result = 0;
+	}
+    else
+	{
+		result = 1;
+		CL_LOG("升级错误!!!\n");
+	}
+	
+	//DownLoadData->index = 
+SendUpgradeAck: SendUpgradePackageAck(result, DownLoadData->index);
+	
+    return CL_OK;
+}
+
+void MainBoardUpgrade(CB_STR_t *pBuff, uint16_t len)
+{
+    int ret = 0;
+	
+    switch (pBuff->head.cmd) 
+	{
+		case ENUM_UPGRADE_REQUEST:
+			PrintfData("ENUM_UPGRADE_REQUEST", (void*)pBuff, len);
+			if(CL_OK == UpgradeRequestHandler(pBuff, len))
+			{
+				ret = 0;
+				PlayVoice(VOIC_START_UPGRADE); 
+				GlobalInfo.UpgradeFlag = 0xa5;
+    			//DelayMsWithNoneOs(900);
+			}
+			else
+			{
+				CL_LOG("不可以升级!!!\n");
+				ret = 1;
+			}
+			UpgradeRequestAck(ret);
+            return;
+		case ENUM_SEND_UPGRADE_PKT:
+			//PrintfData("ENUM_SEND_UPGRADE_PKT", (void*)pBuff, len);
+            SendUpgradePackage(pBuff, len);
+
+            return;
+	}
 }
 
 #define M1_CARD_BLOCK_LENTH      16
@@ -695,40 +831,6 @@ int SwipeCardWriteCardAck(CB_STR_t *pBuff, uint16_t len)
 
 
 
-int UpgradeRequestHandler(CB_STR_t *pBuff, uint16_t len)
-{
-	uint32_t i = 0;
-	pSTART_UPGRADE_REQUEST_STR pUpgradeRequest = (START_UPGRADE_REQUEST_STR*)(pBuff->data);;
-	
-	UpgradeRequestArray.filesize = pUpgradeRequest->filesize;
-	UpgradeRequestArray.package = pUpgradeRequest->package;
-	UpgradeRequestArray.checkSum = pUpgradeRequest->checkSum;
-	UpgradeRequestArray.fw_verson = pUpgradeRequest->fw_verson;
-	CL_LOG("filesize[%#x], package[%#x], checkSum[%#x], fw_verson[%#x].\n", UpgradeRequestArray.filesize, UpgradeRequestArray.package, UpgradeRequestArray.checkSum, UpgradeRequestArray.fw_verson);
-	
-	GlobalInfo.UpgradeFw.CurrentPackage = 1;
-	GlobalInfo.UpgradeFw.lastIndex = 0;
-	GlobalInfo.UpgradeFw.ReceiveSize = 0;
-	if((0 == UpgradeRequestArray.filesize) || (0 == UpgradeRequestArray.package)/* || 
-		(UpgradeRequestArray.fw_verson == FW_VERSION)*/)
-	{
-        CL_LOG("filesize or package or fw_verson, error!!!");
-		return CL_FAIL;
-	}
-#if 1
-	fmc_unlock();
-	for (i = 0; i < (uint32_t)(APP_FW_SIZE / FLASH_PAGE_SIZE); i++)     //擦除APP程序区 
-    {
-		fmc_page_erase(AppUpBkpAddr + i * FLASH_PAGE_SIZE);//擦除这个扇区
-		fmc_flag_clear(FMC_FLAG_END | FMC_FLAG_WPERR | FMC_FLAG_PGERR);
-    }
-	fmc_lock();
-#endif
-
-	return CL_OK;
-}
-
-
 void MainBoardPktProc(CB_STR_t *pBuff, uint16_t len)
 {
     //PrintfData("MainBoardPktProc", (void*)pBuff, len);
@@ -749,6 +851,9 @@ void MainBoardPktProc(CB_STR_t *pBuff, uint16_t len)
 		break;
 		case MsgType_BLUE:
 			GetBlueInfo(pBuff, len);
+		break;
+		case ENUM_MODUL_UPGRADE:
+			MainBoardUpgrade(pBuff, len);
 		break;
 	}
 }

@@ -85,7 +85,7 @@ int BlueCheckRes(char *cmd, char *res, uint16_t tmo, uint8_t *pbuff, uint16_t si
 			while(CL_OK == FIFO_S_Get(&(UartPortHandleInfo->rxBuffCtrl), &c)) 
 			{
 				BlueTimeTicksFlag = GetTimeTicks();
-				CL_LOG("c:[%x, %c].\n", c, c);
+			//	printf("c:[%x, %c].\n", c, c);
 	            if (c) 
 				{
 	                if (size > cnt) 
@@ -313,6 +313,27 @@ int BuleGetNameProcess(void)
     return CL_FAIL;
 }
 
+int BuleModePairProcess(void)
+{
+    uint8_t i = 0;
+    
+    for (i = 0; i < 2; i++) 
+	{
+        if (BlueSendCmd("AT+PAIR=1\r\n", "OK", 3000) == 0) 
+		{
+            CL_LOG("¿∂—¿∆•≈‰≥…π¶.\n");
+            gBlueInitStep++;
+            return CL_OK;
+        }
+        CL_LOG("¿∂—¿∆•≈‰ ß∞‹,retry.\n");
+        DelayMsWithNoneOs(2000);
+    }
+    CL_LOG("¿∂—¿∆•≈‰ ß∞‹.\n");
+	
+    return CL_FAIL;
+}
+
+
 int CheckBlueModeCmd(char ok, uint8_t retry, uint16_t delay)
 {
     if (ok==0) 
@@ -505,8 +526,48 @@ int BuleReconnect(void)
 			case BLUE_MODE_GETNAME:
 				if(CL_OK == BuleGetNameProcess())
 				{
+					#if SET_BLUE_NAME
 					step = BLUE_MODE_SETNAME;
+					#else
+					step = BLUE_MODE_PAIR;
+					#endif
 					retry = 0;
+				}
+				else
+				{
+					if(retry++ > 10)
+					{
+						return CL_FAIL;
+					}
+				}
+			break;
+		#if SET_BLUE_NAME
+			#if 0
+			case BLUE_MODE_SETNAME:
+				if(CL_OK == SetBlueName())
+				{
+					step = BLUE_MODE_PAIR;
+					retry = 0;
+				}
+				else
+				{
+					if(retry++ > 10)
+					{
+						return CL_FAIL;
+					}
+				}
+			break;
+			#endif
+		#endif
+			case BLUE_MODE_PAIR:
+				if(CL_OK == BuleModePairProcess())
+				{
+					SystemInfo.blue_state = 0;
+    				SystemStatus.blue_state = 0;
+					step = BLUE_RESET;
+					retry = 0;
+					CL_LOG("¿∂—¿≥ı ºªØ≥…π¶.\n");
+					return CL_OK;
 				}
 				else
 				{

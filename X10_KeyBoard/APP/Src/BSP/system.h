@@ -29,10 +29,11 @@ typedef struct
 
 typedef struct
 {
-    unsigned char system_state;					//没有使用
-    unsigned char blue_state;					//
-    unsigned char card_state;					//读卡器状态  0 :表示初始化ok 1: 表示初始化出错
-    unsigned char key_state;					//没有使用
+    uint8_t system_state;					//没有使用
+    uint8_t blue_state;					//
+    uint8_t card_state;					//读卡器状态  0 :表示初始化ok 1: 表示初始化出错
+    uint8_t key_state;					//没有使用
+    uint8_t FwVer;						//固件版本
 }SYSTEM_STATUS_T;
 
 typedef struct{

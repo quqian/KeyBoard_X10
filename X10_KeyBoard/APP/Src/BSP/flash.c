@@ -144,7 +144,7 @@ int FlashWrite(uint32_t address, uint8_t *writeBuffer, uint16_t Len)
         
 		if(writeLen == secremain)               //写入结束了
 		{
-			CL_LOG("写完成功.\n");
+		//	CL_LOG("写完成功.\n");
 			break;
 		}
 		else                                    //写入未结束
