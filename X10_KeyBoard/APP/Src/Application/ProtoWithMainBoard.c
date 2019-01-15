@@ -540,7 +540,7 @@ void MainBoardUpgrade(CB_STR_t *pBuff, uint16_t len)
 			UpgradeRequestAck(ret);
             return;
 		case ENUM_SEND_UPGRADE_PKT:
-			//PrintfData("ENUM_SEND_UPGRADE_PKT", (void*)pBuff, len);
+		//	PrintfData("ENUM_SEND_UPGRADE_PKT", (void*)pBuff, len);
             SendUpgradePackage(pBuff, len);
 
             return;
@@ -853,6 +853,7 @@ void MainBoardPktProc(CB_STR_t *pBuff, uint16_t len)
 			GetBlueInfo(pBuff, len);
 		break;
 		case ENUM_MODUL_UPGRADE:
+            FeedWatchDog();
 			MainBoardUpgrade(pBuff, len);
 		break;
 	}
