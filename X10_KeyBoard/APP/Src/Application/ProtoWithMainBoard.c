@@ -315,11 +315,14 @@ void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
             }
             else if(pBuff->data[0] == 0x02)		//蓝牙复位
 			{
-                CL_LOG("BlueBluetooth_Reset req .\n");
+                CL_LOG("请求复位蓝牙模块.\n");
+				BuleReconnect();
                 //BlueBluetooth_Reset();
             }
             else if(pBuff->data[0] == 0x03)		//蓝牙广播开关
 			{
+				CL_LOG("请求打开蓝牙广播.\n");
+				BuleModePairProcess();
                // SetBluePair(st.msg[1]);
             }
         }

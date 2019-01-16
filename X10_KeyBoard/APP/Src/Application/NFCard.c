@@ -272,4 +272,28 @@ void NFCardTask(void)
 #endif
 }
 
+void NFCardTaskHandle(void)
+{
+	static uint32_t NFCardTicks = 0;
+	
+	if((((NFCardTicks + 100) <= GetTimeTicks()) || (NFCardTicks > GetTimeTicks())) && (0 == SystemStatus.card_state))
+    {
+        NFCardTicks = GetTimeTicks();
+		if(GlobalInfo.UpgradeFlag != 0xa5)
+		{
+		//	if(CL_OK == BswDrv_FM175XX_SetPowerDown(0)) 	//ÍË³öË¯Ãß
+			{
+				NFCardTask();
+			}
+		}
+     //   BswDrv_FM175XX_SetPowerDown(1);			//½øÈëË¯Ãß
+        FeedWatchDog();
+    }
+	
+    if(((ReadCardTicks + 5000) <= GetTimeTicks()) || (ReadCardTicks > GetTimeTicks()))
+    {
+        ReadCardTicks = GetTimeTicks();
+		GlobalInfo.cardFlag = 1;
+    }
+}
 

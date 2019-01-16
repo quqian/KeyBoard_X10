@@ -12,6 +12,7 @@
 extern void KeyCallBack(uint8_t values);
 extern void GetKey(void);
 extern void TsiKeyInit(void);
+extern void GetKeyHandle(void);
 
 
 

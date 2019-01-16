@@ -68,6 +68,7 @@ typedef struct
 	uint32_t lastConnectTime;
 	uint32_t blueTestTime;
 	uint8_t rebootBlueCnt;
+	uint8_t BlueLedFlag;
 }GLOBAL_INFO_T;
 
 extern void WatchDogInit(void) ;

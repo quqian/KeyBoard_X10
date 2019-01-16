@@ -54,7 +54,7 @@
 #define Feed_WDT						FeedWatchDog
 #define EN_BLUETOOTH					1
 #define SET_BLUE_NAME					0
-
+#define BLUE_CONNECT_TICK				(60000)
 
 
 #define CL_LOG(fmt,args...) do {    \

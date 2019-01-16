@@ -100,7 +100,8 @@ extern int SetGW_MacAddr(char *mac);
 extern int TransBlueData(unsigned char *gBuleRxData,unsigned int datalen);
 extern int BlueTest(int retry);
 extern void HandleBlueMsg(void);
-
+extern void BlueToothHandle(void);
+extern int BuleModePairProcess(void);
 
 
 #endif

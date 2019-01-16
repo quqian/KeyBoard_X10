@@ -12,6 +12,8 @@ extern void Check_M1_Card(void);
 
 extern void NFCardTask(void);
 extern int BswDrv_FM175XX_SetPowerDown(uint8_t mode);
+extern void NFCardTaskHandle(void);
+
 #endif
 
 

@@ -479,8 +479,9 @@ int BuleReconnect(void)
 {
 	uint8_t step = BLUE_RESET;
 	uint8_t retry = 0;
-	
-	while(1)
+	uint32_t BuleReconnectTick = GetTimeTicks();
+		
+	while((BuleReconnectTick + BLUE_CONNECT_TICK) >= GetTimeTicks())
 	{
 		switch (step)
 		{
@@ -587,6 +588,7 @@ int BuleReconnect(void)
 		}
 		DelayMsWithNoneOs(200);
 	}
+    return CL_FAIL;
 }
 #else
 int BuleReconnect(void)
@@ -623,12 +625,61 @@ int BuleReconnect(void)
 			return CL_OK;
 		}
 	}
+    return CL_FAIL;
 }
 #endif
 
 void BlueUsartInit(void)
 {
     UARTx_Init(DEBUG_INDEX, ENABLE, 115200);	//蓝牙
+}
+
+void BlueToothHandle(void)
+{
+#if EN_BLUETOOTH
+	//如果没有蓝牙链接，定期检测CK模块是否正常工作
+	if(SystemStatus.blue_state == 0 						   //认为当前蓝牙状态是OK的
+		&& GlobalInfo.isBuleConnect == 0								   //没有APP链接到蓝牙
+		&& (GetTimeTicks() - GlobalInfo.blueTestTime >= 60000))  //1分钟监测一次
+	{
+		GlobalInfo.blueTestTime = GetTimeTicks();
+		if(BlueTest(1) != OK)
+		{
+			CL_LOG("检测蓝牙错误.\n");
+			GlobalInfo.blueTestTime = GetTimeTicks() - 50000;
+			SystemStatus.blue_state = 1;
+			GlobalInfo.BlueLedFlag = 0xa5;
+			GlobalInfo.rebootBlueCnt++;
+		}
+		else
+		{
+			GlobalInfo.BlueLedFlag = 0;
+			SystemStatus.blue_state = 0;
+			GlobalInfo.rebootBlueCnt = 0;
+			printf("蓝牙检测成功.\n");
+		}
+	}
+
+	 //如果蓝牙异常，重启蓝牙设备，最多重启3次
+	if((SystemInfo.blue_state == 0) 					//有蓝牙设备
+		&& (GlobalInfo.rebootBlueCnt >= 15) 
+		&& (SystemStatus.blue_state == 1))			//当前获取不到蓝牙信息
+	{
+		if(BuleReconnect() == OK)
+		{
+			CL_LOG("复位蓝牙.\n");
+			GlobalInfo.blueTestTime = GetTimeTicks() - (55000);
+	   }
+	}
+
+	//判断蓝牙是否链接	2分钟没有收到数据就认为空闲
+	if((GlobalInfo.isBuleConnect == 1) && (GetTimeTicks() - GlobalInfo.lastConnectTime > 120000))
+	{
+		GlobalInfo.lastConnectTime = GetTimeTicks();
+		GlobalInfo.isBuleConnect = 0;
+		CL_LOG("打开检测蓝牙标志.\n");
+	}
+#endif
 }
 
 void BlueGPIO_Conf(void)

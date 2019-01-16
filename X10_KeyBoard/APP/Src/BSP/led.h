@@ -11,6 +11,7 @@
 extern void LedInit(void);
 //extern void RedLed(void);
 extern void GreenLed(void);
+extern void GreenLedHandle(void);
 
 
 #endif

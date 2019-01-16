@@ -798,4 +798,16 @@ void GetKey(void)
 	KeyCallBack(KeyValue);
 }
 
+void GetKeyHandle(void)
+{
+	static uint32_t GetKeyTicks = 0;
+	
+    if(((GetKeyTicks + 350) <= GetTimeTicks()) || (GetKeyTicks > GetTimeTicks()))
+    {
+        GetKeyTicks = GetTimeTicks();
+        GetKey();
+    }
+}
+
+
 

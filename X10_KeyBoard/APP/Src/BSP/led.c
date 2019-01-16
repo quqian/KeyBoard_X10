@@ -37,3 +37,31 @@ void GreenLed(void)
     }                   
 }
 
+void GreenLedHandle(void)
+{
+	static uint32_t GreenLedTicks = 0;
+
+ 	if(0xa5 == GlobalInfo.BlueLedFlag)
+	{
+		if(((GreenLedTicks + 8000) <= GetTimeTicks()) || (GreenLedTicks > GetTimeTicks()))
+	    {
+	        GreenLedTicks = GetTimeTicks();
+			GreenLed();
+	    }
+	}
+	else
+	{
+		if(((GreenLedTicks + 500) <= GetTimeTicks()) || (GreenLedTicks > GetTimeTicks()))
+	    {
+	        GreenLedTicks = GetTimeTicks();
+			GreenLed();
+	    //    CL_LOG("SystemCoreClock[%d]\n", SystemCoreClock);
+	        #if 0
+	        timeaaa = GetRtcTimeStamp();+
+	        CL_LOG("Ê±¼ä´Á[%d]\n", (uint32_t)timeaaa);
+	        #endif
+	    }
+	}
+}
+
+
