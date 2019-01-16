@@ -186,13 +186,13 @@ int main(void)
                 }
             }
 
-			#if 0
+			#if 1
              //如果蓝牙异常，重启蓝牙设备，最多重启3次
-            if(SystemInfo.blue_state ==0               		//有蓝牙设备
-                && GlobalInfo.rebootBlueCnt <= 5                   //重启次数
-                && SystemStatus.blue_state == 1)			//当前获取不到蓝牙信息
-           	{      
-				if(BuleReset_Async() == OK)
+            if((SystemInfo.blue_state == 0)               		//有蓝牙设备
+                && (GlobalInfo.rebootBlueCnt >= 5) 
+                && (SystemStatus.blue_state == 1))			//当前获取不到蓝牙信息
+           	{
+				if(BuleReconnect() == OK)
 			   	{
                     CL_LOG("复位蓝牙.\n");
                     GlobalInfo.blueTestTime = GetTimeTicks() - (55000);
@@ -200,7 +200,7 @@ int main(void)
             }
 			#endif
             //判断蓝牙是否链接  2分钟没有收到数据就认为空闲
-            if(GlobalInfo.isBuleConnect == 1 && (GetTimeTicks() - GlobalInfo.lastConnectTime > 120000))
+            if((GlobalInfo.isBuleConnect == 1) && (GetTimeTicks() - GlobalInfo.lastConnectTime > 120000))
 			{
                 GlobalInfo.lastConnectTime = GetTimeTicks();
                 GlobalInfo.isBuleConnect = 0;
