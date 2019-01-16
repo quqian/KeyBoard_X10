@@ -85,15 +85,16 @@ int fputc(int ch, FILE *f)
 #endif
 
 
-void PrintfData(void *pfunc, uint8_t *pdata, int len)
+void PrintfData(void *log, uint8_t *pdata, int len)
 {
 	uint32_t i;
 
-	CL_LOG("call by %s,len=%d,pdata:",(char*)pfunc,len);
+	PRINTF_LOG(" %s,len=%d ,pdata:",(char*)log,len);
 	for(i = 0; i < len; i++) 
 	{
 		printf("%02X", pdata[i]);
 	}
+    
 	printf("\n");
 }
 

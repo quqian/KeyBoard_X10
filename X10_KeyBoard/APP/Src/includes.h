@@ -60,6 +60,12 @@
 #define CL_LOG(fmt,args...) do {    \
     printf("[X10KB %s] %s:(%d) " fmt, GetCurrentTime(), __func__, __LINE__, ##args); \
 }while(0)
+
+#define PRINTF_LOG(fmt,args...) do {    \
+    printf("[X10KB %s]" fmt, GetCurrentTime(), ##args); \
+}while(0)
+
+
 //#define CL_LOG(fmt,args...) do {    \
 //    printf("[X10KB %d] %s:(%d) " fmt, GetTimeTicks()/1000, __func__, __LINE__, ##args); \
 //}while(0)

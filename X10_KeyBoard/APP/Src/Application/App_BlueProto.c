@@ -8,14 +8,15 @@ uint8_t gwMac[5];
 
 
 
-int SendCKB24Pkt(uint8_t nodeType, BLUE_PKT_STR *pkt, uint16_t len)
+int SendCKB24Pkt(uint8_t nodeType, uint8_t *pkt, uint16_t len)
 {
-	int i = 0;
-	
+	uint32_t i = 0;
+	BLUE_PKT_STR stk;
+		
     while (GET_BLUE_IRQ()) 
 	{
-        DelayMsWithNoneOs(50);
-        if (100 <= ++i) 
+        DelayMsWithNoneOs(10);
+        if (500 <= ++i) 
 		{
             CL_LOG("CKB24 wait idle timeout,error.\n");
             return CL_FAIL;
@@ -26,20 +27,22 @@ int SendCKB24Pkt(uint8_t nodeType, BLUE_PKT_STR *pkt, uint16_t len)
 	    CKB24_CD_HIGH();
 		DelayMsWithNoneOs(2);
 	}
-
-	pkt->head.ab = 0xab;
-	pkt->head.cd = 0xcd;
-    pkt->head.target = nodeType;
+	memset(&stk, 0, sizeof(BLUE_PKT_STR));
+	stk.head.ab = 0xab;
+	stk.head.cd = 0xcd;
+	//memset(stk->head.addr, 0, 6);
 	if(nodeType == 1)
 	{
-        memcpy(pkt->head.addr, SystemInfo.gw_mac, 5);
+        memcpy(stk.head.addr, SystemInfo.gw_mac, 5);
     }
-    pkt->head.len = len;
-    pkt->data[len] = GetPktSum((void*)pkt, sizeof(BLUE_HEAD_STR)+len);
-    pkt->data[len+1] = '\r';
-    pkt->data[len+2] = '\n';
-	//PrintfData("SendBluePkt", (void*)pkt, sizeof(BLUE_HEAD_STR)+len+1+2);
-	UsartSend(DEBUG_INDEX, (void*)pkt, sizeof(BLUE_HEAD_STR)+len+1+2);
+    stk.head.target = nodeType;
+    stk.head.len = len;
+	memcpy(stk.data, pkt, len);
+    stk.data[len] = GetPktSum((void*)&stk, sizeof(BLUE_HEAD_STR)+len);
+    stk.data[len+1] = '\r';
+    stk.data[len+2] = '\n';
+//	PrintfData("SendCKB24Pkt 发送x10p蓝牙模块数据", (void*)&stk, sizeof(BLUE_HEAD_STR)+len+1+2);
+	UsartSend(DEBUG_INDEX, (void*)&stk, sizeof(BLUE_HEAD_STR)+len+1+2);
 	
     return CL_OK;
 }
@@ -673,16 +676,16 @@ void BswSrv_Blue_RxData_Callback(uint8_t *data,uint16_t len)
 //转发蓝牙、2.4G数据
 int TransBlueData(unsigned char *gBuleRxData,unsigned int datalen)
 {
-	BLUE_PKT_STR* pBuleRxData = (BLUE_PKT_STR*)gBuleRxData;
+	BLUE_RECEIVE_PKT_STR* pBuleRxData = (BLUE_RECEIVE_PKT_STR*)gBuleRxData;
 //	uint8_t nodeType = pBuleRxData->head.target;
 	uint8_t FrameBuff[256] = {0,};
 	CB_STR_t * pBuff = (void*)FrameBuff;
     FeedWatchDog();
 
-	memcpy(pBuff->data, pBuleRxData->data, datalen);
+	datalen = datalen + 3;
+	memcpy(pBuff->data, &pBuleRxData->head.target, datalen);
     App_CB_SendData(pBuff, datalen, MsgType_BLUE, CMD_BLUE_SEND);
-//	PrintfData("PCBBumUpLoad", (uint8_t*)pBuff, sizeof(PCB_INFO_STR) + sizeof(CB_HEAD_STR) + 2);
-    
+//	PrintfData("TransBlueData 给X10P蓝牙数据", (uint8_t*)pBuff, (datalen + sizeof(CB_HEAD_STR) + 1));
     return 0;
 }
 
@@ -699,6 +702,7 @@ void HandleBlueMsg(void)
 
 	while (CL_OK == FIFO_S_Get(&(UartPortHandleInfo[0].rxBuffCtrl), &data)) 
 	{
+	//	printf("data = %#x\n", data);
 		switch (step) 
 		{
 			case BLUE_AB:
@@ -813,6 +817,7 @@ void HandleBlueMsg(void)
 					{
 					#if 1
 						//datalen 表示有效数据长度
+					//	PrintfData("HandleBlueMsg 接收蓝牙数据", (uint8_t*)pktBuff, msgLen + sizeof(BLUE_RX_HEAD_STR) + 1);
                     	TransBlueData(pktBuff, msgLen);//数据透传
 					#else
                         uint8_t *p = NULL;

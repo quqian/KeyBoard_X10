@@ -187,9 +187,9 @@ int SendMsg_ACK(uint8_t type, uint8_t cmd, uint8_t result)
 	REPORT_INFO_ACK_STR* ShakeHandAck = (REPORT_INFO_ACK_STR*)pBuff->data;
 
 	ShakeHandAck->result = result;
-	
+	printf("type = %d, cmd = %d \n", type, cmd);
 	App_CB_SendData(pBuff, sizeof(REPORT_INFO_ACK_STR), type, cmd);
-	PrintfData("SendMsg_ACK", (uint8_t*)pBuff, sizeof(REPORT_INFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
+	PrintfData("SendMsg_ACK 给X10P的蓝牙应答", (uint8_t*)pBuff, sizeof(REPORT_INFO_ACK_STR) + sizeof(CB_HEAD_STR) + 2);
 	
     return CL_OK;
 }
@@ -343,7 +343,6 @@ void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
 
 void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 {
-	uint8_t pcb[8];
 	uint8_t str_mac[11];
 	uint8_t nodeType = 0;	//0：蓝牙；1：2.4G
     
@@ -381,34 +380,37 @@ void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 			case CMD_BLUE_RECV:			//接收消息 - 消息转发
 				if(pBuff->head.len >= 3)
 				{
-					BLUE_PKT_STR stk;
 					MSG_STR *ReceiveMsgData = (MSG_STR*)pBuff->data;
-					uint32_t len = ReceiveMsgData->MSG_Len;//(unsigned int)(pBuff->data[1] | pBuff->data[2]<<8);
+					uint32_t len = ReceiveMsgData->MSG_Len;
                     
-					nodeType = ReceiveMsgData->MSG_Type;//pBuff->data[0];	//0：蓝牙；1：2.4G
-					memset(&stk, 0, sizeof(BLUE_PKT_STR));
+                 //   PrintfData("GetBlueInfo 蓝牙模块x10p数据", &pBuff->head.aa, pBuff->head.len + 6);
+					nodeType = ReceiveMsgData->MSG_Type;    //0：蓝牙；1：2.4G
+			//		printf("wwwwwwwwwlen = %d\n", len);
 					//转发数据到蓝牙、2.4G
-					#if 0
-					SendCKB24Pkt(nodeType, (BLUE_PKT_STR*)&stk, stk.head.len);
-					if(SendBlueData(nodeType, pBuff->data + 3, len) == OK)
+					#if 1
+				//	if(SendBlueData(nodeType, pBuff->data + 3, len) == OK)
+					if(SendCKB24Pkt(nodeType, ReceiveMsgData->Data, len) == OK)
 					{
 						//响应包
+                       // printf("GetBlueInfo 给x10p的蓝牙响应包,成功\n");
 						SendMsg_ACK(MsgType_BLUE, CMD_BLUE_RECV,0);
 					}
 					else
 					{
 						//响应包
+                        printf("GetBlueInfo 给x10p的蓝牙响应包,失败\n");
 						SendMsg_ACK(MsgType_BLUE, CMD_BLUE_RECV, 1);
 					}
 					#endif
 				}
 				else
 				{
+					printf("GetBlueInfo 给x10p的蓝牙响应包错误, 错误\n");
 					SendMsg_ACK(MsgType_BLUE, CMD_BLUE_RECV, 1);
 				}
 			return;
 			default:
-	            CL_LOG("错误.\n");
+	            CL_LOG("[GetBlueInfo 错误]\n");
 			return;
 		}
 	}
@@ -1002,7 +1004,7 @@ void ComRecvMainBoardData(void)
 	    			}
 					else 
 					{
-	    				CL_LOG("CB checksum err.\n");
+	    				CL_LOG("接收x10p的数据校验错误.\n");
 	    			}
 	    			step = CB_FIND_AA;
 	    		}

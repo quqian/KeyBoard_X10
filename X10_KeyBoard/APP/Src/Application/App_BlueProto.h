@@ -76,6 +76,11 @@ typedef struct {
     uint8_t  data[255];
 }BLUE_PKT_STR;
 
+typedef struct {
+    BLUE_RX_HEAD_STR head;
+    uint8_t  data[255];
+}BLUE_RECEIVE_PKT_STR;
+
 
 #pragma pack()
 
@@ -89,7 +94,7 @@ extern int BuleSetName(char ok, uint8_t retry);
 extern int BuleModePair(char ok, uint8_t retry);
 extern int BuleReconnect(void);
 extern int BlueSendCmd(char *cmd, char *ack, uint16_t waittime);
-extern int SendCKB24Pkt(uint8_t nodeType, BLUE_PKT_STR *pkt, uint16_t len);
+extern int SendCKB24Pkt(uint8_t nodeType, uint8_t *pkt, uint16_t len);
 extern int SetBlueName(char *name);
 extern int SetGW_MacAddr(char *mac);
 extern int TransBlueData(unsigned char *gBuleRxData,unsigned int datalen);
