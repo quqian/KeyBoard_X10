@@ -39,9 +39,8 @@
 ////	#define NET_SERVER_PORT                 "10010"
 //#endif
 
-#define FW_VERSION                      0
-#define FW_VERSION_SUB1                 1
-#define FW_VERSION_SUB2                 1
+#define FW_VERSION                      1
+#define FW_VERSION_SUB1                 0
 
 
 #define FLASH_SIZE                      128     //设备flash大小128K

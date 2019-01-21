@@ -21,8 +21,7 @@ void GetFwVersion(OUT_PKT_STR *pBuff)
 {
     pBuff->data[1] = (uint8_t)(FW_VERSION);
     pBuff->data[2] = (uint8_t)(FW_VERSION_SUB1);
-    pBuff->data[3] = (uint8_t)FW_VERSION_SUB2;
-    SendDebugPkt(0, pBuff, 4);
+    SendDebugPkt(0, pBuff, 3);
 }
 
 
