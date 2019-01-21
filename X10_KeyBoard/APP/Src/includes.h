@@ -20,34 +20,17 @@
 #include "sc8042b.h"
 #include "gd32f3x0_rtc.h"
 #include "rtc.h"
+#include "main.h"
 
 
-
-#define FW_VERSION                      3		//正式版本时只改主版本
+#define FW_VERSION                      1		//正式版本时只改主版本
 #define FW_VERSION_SUB1                 0
 
-
-#define FLASH_SIZE                      128     //设备flash大小128K
-#define FLASH_PAGE_SIZE					1024
-
-#define BOOT_SIZE	                	((uint32_t)0x2000)
-#define AppFlashAddr	                (FLASH_BASE + BOOT_SIZE)		//App运行入口地址	//应用区	 58K
-#define AppUpBkpAddr					(AppFlashAddr + ((uint32_t)58) * 1024)		//备份区	 58K
-
-#define SystemInfoAddr 					(AppUpBkpAddr + ((uint32_t)58) * 1024)		//(FLASH_BASE + ((uint32_t)124) * 1024)
-#define PCB_INFO						(FLASH_BASE + ((uint32_t)126) * 1024)				//PCB信息
-#define UPGRADE_INFO					(FLASH_BASE + ((uint32_t)127) * 1024)				//升级信息
-#define APP_FW_SIZE                     (AppUpBkpAddr - AppFlashAddr)
 
 
 #define DEBUG_INDEX            			0
 #define RS232_INDEX            			1
 
-
-#define CL_OK                           0
-#define CL_FAIL                         (-1)
-#define CL_TRUE                         1
-#define CL_FALSE                        0
 
 
 

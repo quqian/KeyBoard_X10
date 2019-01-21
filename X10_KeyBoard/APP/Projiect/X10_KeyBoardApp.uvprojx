@@ -395,6 +395,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\Application\ProtoWithMainBoard.c</FilePath>
             </File>
+            <File>
+              <FileName>App_BlueProto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Application\App_BlueProto.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
