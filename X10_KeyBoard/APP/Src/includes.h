@@ -22,11 +22,12 @@
 #include "rtc.h"
 #include "main.h"
 
+#define TEST_PRINTF_LOG                      1		//正式版本时为 0
 
 #define FW_VERSION                      1		//正式版本时只改主版本
-#define FW_VERSION_SUB1                 0
-
-
+#if TEST_PRINTF_LOG
+#define TEST_VERSION                    1		//测试版本才有
+#endif
 
 #define DEBUG_INDEX            			0
 #define RS232_INDEX            			1

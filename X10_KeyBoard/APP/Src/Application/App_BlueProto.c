@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "App_BlueProto.h"
+#include "led.h"
 
 
 uint8_t gBlueInitStep = 0;
@@ -230,7 +231,7 @@ int BuleCheckResetProcess(void)
         }
         CL_LOG("blue reset fail,retry.\n");
 		FeedWatchDog();
-        DelayMsWithNoneOs(2000);
+        DelayMsWithNoneOs(1000);
     }
     CL_LOG("blue reset fail.\n");
     return CL_FAIL;
@@ -477,12 +478,17 @@ int BuleModePair(char ok, uint8_t retry)
 #if 1
 int BuleReconnect(void)
 {
+#if EN_BLUETOOTH
 	uint8_t step = BLUE_RESET;
 	uint8_t retry = 0;
 	uint32_t BuleReconnectTick = GetTimeTicks();
-		
+	
+    GlobalInfo.BlueLedFlag = 0xa5;
 	while((BuleReconnectTick + BLUE_CONNECT_TICK) >= GetTimeTicks())
 	{
+        //ledµÆ
+        GreenLed();
+		printf("retry = %d\n", retry);
 		switch (step)
 		{
 			case BLUE_RESET:
@@ -493,7 +499,7 @@ int BuleReconnect(void)
 				}
 				else
 				{
-					if(retry++ > 10)
+					if(retry++ >= 1)
 					{
 						return CL_FAIL;
 					}
@@ -586,9 +592,11 @@ int BuleReconnect(void)
 			//	step = BLUE_RESET;
 			break;
 		}
-		DelayMsWithNoneOs(200);
+		DelayMsWithNoneOs(100);
 	}
-    return CL_FAIL;
+#endif
+
+	return CL_FAIL;
 }
 #else
 int BuleReconnect(void)
@@ -667,7 +675,7 @@ void BlueToothHandle(void)
 	{
 		if(BuleReconnect() == OK)
 		{
-			CL_LOG("¸´Î»À¶ÑÀ.\n");
+			CL_LOG("¸´Î»À¶ÑÀ OK.\n");
 			GlobalInfo.blueTestTime = GetTimeTicks() - (55000);
 	   }
 	}

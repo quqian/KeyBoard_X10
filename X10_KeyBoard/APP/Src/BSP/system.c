@@ -80,7 +80,10 @@ void LoadSystemInfo(void)
         SaveInfo.magic_number = MAGIC_NUM_BASE;
         FlashWriteSysInfo(&SaveInfo, sizeof(SaveInfo));
     }
-    CL_LOG("\n 设备版本号: fw_version = %d, subVersion1 = %d. \n", FW_VERSION, FW_VERSION_SUB1);
+    CL_LOG("\n 设备版本号: fw_version = %d. \n", FW_VERSION);
+#if TEST_PRINTF_LOG
+    CL_LOG("\n 测试版本号: version = %d. \n", TEST_VERSION);
+#endif
     CL_LOG("\n 文件编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
 	SystemInfo.soft_version = FW_VERSION;
 }

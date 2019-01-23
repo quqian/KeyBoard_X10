@@ -5,8 +5,8 @@
 
 
 
-#define GREEN_LIGHT_ON()       			gpio_bit_set(GPIOC, GPIO_PIN_15)
-#define GREEN_LIGHT_OFF()      			gpio_bit_reset(GPIOC, GPIO_PIN_15)
+#define GREEN_LIGHT_OFF()       			gpio_bit_set(GPIOC, GPIO_PIN_15)
+#define GREEN_LIGHT_ON()      			gpio_bit_reset(GPIOC, GPIO_PIN_15)
 
 extern void LedInit(void);
 //extern void RedLed(void);

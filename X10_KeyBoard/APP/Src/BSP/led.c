@@ -1,6 +1,6 @@
 
 #include "led.h"
-
+#include "system.h"
 
 
 /*****************************************************************************
@@ -16,7 +16,8 @@ void LedInit(void)
 	
 	gpio_mode_set(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO_PIN_15);
 	gpio_output_options_set(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_15);
-    
+	
+    GREEN_LIGHT_ON();
 //    gpio_mode_set(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, GPIO_PIN_7);
 //	gpio_output_options_set(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_PIN_7);
 }
@@ -43,7 +44,7 @@ void GreenLedHandle(void)
 
  	if(0xa5 == GlobalInfo.BlueLedFlag)
 	{
-		if(((GreenLedTicks + 8000) <= GetTimeTicks()) || (GreenLedTicks > GetTimeTicks()))
+		if(((GreenLedTicks + 3000) <= GetTimeTicks()) || (GreenLedTicks > GetTimeTicks()))
 	    {
 	        GreenLedTicks = GetTimeTicks();
 			GreenLed();

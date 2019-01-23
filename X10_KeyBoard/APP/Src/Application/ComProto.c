@@ -112,11 +112,10 @@ void DebugPktProc(OUT_PKT_STR *pBuff, uint16_t len)
 			else
 			{
 				pBuff->data[1] = (uint8_t)FW_VERSION;
-				pBuff->data[2] = (uint8_t)FW_VERSION_SUB1;
-				CL_LOG("°æ±¾ºÅ[%d.%d]\n", pBuff->data[1], pBuff->data[2]);
+				CL_LOG("°æ±¾ºÅ[%d]\n", pBuff->data[1]);
 			}
 			
-			dataLen = 3;
+			dataLen = 2;
 		break;
         case DEBUG_CMD_REBOOT:
 			pBuff->data[0] = 0;

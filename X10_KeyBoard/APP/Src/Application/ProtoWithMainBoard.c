@@ -346,10 +346,10 @@ void MainBoardBasicInfo(CB_STR_t *pBuff, uint16_t len)
 
 void GetBlueInfo(CB_STR_t *pBuff, uint16_t len)
 {
-	uint8_t str_mac[11];
+#if EN_BLUETOOTH
+    uint8_t str_mac[11];
 	uint8_t nodeType = 0;	//0£ºÀ¶ÑÀ£»1£º2.4G
     
-#if EN_BLUETOOTH
 	if(SystemStatus.blue_state == 0)
 	{
     	switch (pBuff->head.cmd) 
