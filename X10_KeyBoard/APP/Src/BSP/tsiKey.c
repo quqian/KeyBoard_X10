@@ -73,6 +73,7 @@ uint16_t SampleRefnumArrayG0P2[20] = {0};
 uint16_t SampleRefnumArrayG0P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG0[4] = {0,};
+uint8_t SampleRefnumG0Flag[4] = {0,};
 
 
 /* the current cycle number array of the channel pin */
@@ -83,6 +84,7 @@ uint16_t SampleRefnumArrayG1P2[20] = {0};
 uint16_t SampleRefnumArrayG1P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG1[4] = {0,};
+uint8_t SampleRefnumG1Flag[4] = {0,};
 
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG2[4] = {0,0,0,0};
@@ -92,6 +94,7 @@ uint16_t SampleRefnumArrayG2P2[20] = {0};
 uint16_t SampleRefnumArrayG2P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG2[4] = {0,};
+uint8_t SampleRefnumG2Flag[4] = {0,};
 
 
 /* the current cycle number array of the channel pin */
@@ -102,6 +105,7 @@ uint16_t SampleRefnumArrayG3P2[20] = {0};
 uint16_t SampleRefnumArrayG3P0[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG3[4] = {0,};
+uint8_t SampleRefnumG3Flag[4] = {0,};
 
 
 /* the current cycle number array of the channel pin */
@@ -112,6 +116,7 @@ uint16_t SampleRefnumArrayG5P2[20] = {0};
 uint16_t SampleRefnumArrayG5P3[20] = {0};
 /* average value of cycles */
 uint16_t SampleRefnumG5[4] = {0,};
+uint8_t SampleRefnumG5Flag[4] = {0,};
 
 
 void delay(uint32_t nCount)
@@ -375,15 +380,25 @@ void G3GetKey(void)
      //   SampleNumG3[1] = tsi_group5_cycle_get();
 		SampleNumG3[1] = tsi_group3_cycle_get();
     }
-    /* channel 1 touch */
-    if((SampleRefnumG3[1]-SampleNumG3[1]) > 0x20)
-    {
-    	KeyValue = 2;
-		printf("[Key: %d]\n", KeyValue);
-    }
-    else
-    {
-    }
+	if(SampleNumG3[1] == 0x7ff)
+	{
+		SampleRefnumG3Flag[1] = 0xa5;
+	}
+	if((SampleNumG3[1] - 5 <= 0x7ff) && (SampleNumG3[1] + 5 >= 0x7ff))
+	{
+		SampleRefnumG3Flag[1] = 0xa5;
+	}
+//	printf("[SampleRefnumG3[1]: %#x, %#x]\n", SampleRefnumG3[1], SampleNumG3[1]);
+	if(SampleRefnumG3Flag[1] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG3[1]-SampleNumG3[1]) > 0x6)
+	    {
+	        KeyValue = 2;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG3Flag[1] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G3P1);
 
     /* acquisition pin2 of group5 */
@@ -395,13 +410,21 @@ void G3GetKey(void)
       //  SampleNumG3[2] = tsi_group5_cycle_get();
 		SampleNumG3[2] = tsi_group3_cycle_get();
     }
-
-    /* light LED2 */
-    if((SampleRefnumG3[2]-SampleNumG3[2]) > 0x20)
-    {
-        KeyValue = 1;
-		printf("[Key: %d]\n", KeyValue);
-    }
+	if((SampleNumG3[2] - 25 <= 0x6b6) && (SampleNumG3[2] + 25 >= 0x6b6))
+	{
+		SampleRefnumG3Flag[2] = 0xa5;
+	}
+	//printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
+	if(SampleRefnumG3Flag[2] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG3[2]-SampleNumG3[2]) > 0x60)
+	    {
+	        KeyValue = 1;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG3Flag[2] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G3P2);
 
     /* acquisition pin3 of group5 */
@@ -413,12 +436,22 @@ void G3GetKey(void)
       //  SampleNumG3[0] =  tsi_group5_cycle_get();
 		SampleNumG3[0] =  tsi_group3_cycle_get();
     }
-    /* light LED3 */
-    if((SampleRefnumG3[0]-SampleNumG3[0]) > 0x20)
-    {
-        KeyValue = 3;
-		printf("[Key: %d]\n", KeyValue);
-    }
+	
+	if((SampleNumG3[0] - 5 <= 0x7ff) && (SampleNumG3[0] + 5 >= 0x7ff))
+	{
+		SampleRefnumG3Flag[0] = 0xa5;
+	}
+//	printf("[SampleRefnumG3[0]: %#x, %#x]\n", SampleRefnumG3[0], SampleNumG3[0]);
+	if(SampleRefnumG3Flag[0] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG3[0]-SampleNumG3[0]) > 0x6)
+	    {
+	        KeyValue = 3;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG3Flag[0] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G3P0);
 }
 
@@ -490,12 +523,21 @@ void G5GetKey(void)
         /* get charge transfer complete cycle number */
 		SampleNumG5[1] = tsi_group5_cycle_get();
     }
-    /* channel 1 touch */
-    if((SampleRefnumG5[1]-SampleNumG5[1]) > 0x20)
-    {
-    	KeyValue = 6;
-		printf("[Key: %d]\n", KeyValue);
-    }
+
+	if(SampleNumG5[1] == 0x7ff)
+	{
+		SampleRefnumG5Flag[1] = 0xa5;
+	}
+	if(SampleRefnumG5Flag[1] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG5[1]-SampleNumG5[1]) > 0x20)
+	    {
+	        KeyValue = 6;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG5Flag[1] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G5P1);
 
     /* acquisition pin2 of group5 */
@@ -506,12 +548,21 @@ void G5GetKey(void)
     {
 		SampleNumG5[2] = tsi_group5_cycle_get();
     }
-	
-    if((SampleRefnumG5[2]-SampleNumG5[2]) > 0x20)
-    {
-        KeyValue = 5;
-		printf("[Key: %d]\n", KeyValue);
-    }
+
+	if(SampleNumG5[2] == 0x7ff)
+	{
+		SampleRefnumG5Flag[2] = 0xa5;
+	}
+	if(SampleRefnumG5Flag[2] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG5[2]-SampleNumG5[2]) > 0x20)
+	    {
+	        KeyValue = 5;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG5Flag[2] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G5P2);
 
     /* acquisition pin3 of group5 */
@@ -522,11 +573,21 @@ void G5GetKey(void)
     {
 		SampleNumG5[3] =  tsi_group5_cycle_get();
     }
-    if((SampleRefnumG5[3] - SampleNumG5[3]) > 0x20)
-    {
-		KeyValue = 4;
-		printf("[Key: %d]\n", KeyValue);
-    }
+
+	if(SampleNumG5[3] == 0x7ff)
+	{
+		SampleRefnumG5Flag[3] = 0xa5;
+	}
+	if(SampleRefnumG5Flag[3] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG5[3]-SampleNumG5[3]) > 0x20)
+	    {
+	        KeyValue = 4;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG5Flag[3] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G5P3);
 }
 
@@ -565,19 +626,30 @@ void InitTsiG0(void)
 void G0GetKey(void)
 {
     tsi_transfer_pin(TSI_CHCFG_G0P1);
- 
+
     /* check the TSI flag--end of acquisition interrupt */
     if((uint8_t)SET == tsi_flag_get(TSI_FLAG_CTCF))
     {
         /* get charge transfer complete cycle number */
 		SampleNumG0[1] = tsi_group0_cycle_get();
     }
-    /* channel 1 touch */
-    if((SampleRefnumG0[1]-SampleNumG0[1]) > 0x20)
-    {
-		KeyValue = 11;
-		printf("[Key: %d]\n", KeyValue);
-    }
+	
+	if((SampleNumG0[1] - 5 <= 0x7ff) && (SampleNumG0[1] + 5 >= 0x7ff))
+	{
+		SampleRefnumG0Flag[1] = 0xa5;
+	}
+//	printf("[SampleRefnumG0[1]: %#x, %#x]\n", SampleRefnumG0[1], SampleNumG0[1]);
+	if(SampleRefnumG0Flag[1] == 0xa5)
+	{
+		/* channel 1 touch */
+	    if((SampleRefnumG0[1] - SampleNumG0[1]) > 0x20)
+	    {
+			KeyValue = 11;
+			printf("[Key: %d]\n", KeyValue);
+            SampleRefnumG0Flag[1] = 0;
+	    }
+	}
+    
     tsi_channel_pin_disable(TSI_CHCFG_G0P1);
 }
 
@@ -648,12 +720,22 @@ void G1GetKey(void)
         /* get charge transfer complete cycle number */
 		SampleNumG1[1] = tsi_group1_cycle_get();
     }
-    /* channel 1 touch */
-    if((SampleRefnumG1[1]-SampleNumG1[1]) > 0x20)
-    {
-        KeyValue = 0;
-		printf("[Key: %d]\n", KeyValue);
-    }
+	
+	if((SampleNumG1[1] - 5 <= 0x7ff) && (SampleNumG1[1] + 5 >= 0x7ff))
+	{
+		SampleRefnumG1Flag[1] = 0xa5;
+	}
+//	printf("[SampleRefnumG1[1]: %#x, %#x]\n", SampleRefnumG1[1], SampleNumG1[1]);
+	if(SampleRefnumG1Flag[1] == 0xa5)
+	{
+		/* channel 1 touch */
+	    if((SampleRefnumG1[1] - SampleNumG1[1]) > 0x20)
+	    {
+			KeyValue = 0;
+			printf("[Key: %d]\n", KeyValue);
+            SampleRefnumG1Flag[1] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G1P1);
 
     /* acquisition pin2 of group5 */
@@ -665,11 +747,21 @@ void G1GetKey(void)
 		SampleNumG1[2] = tsi_group1_cycle_get();
     }
 	
-    if((SampleRefnumG1[2]-SampleNumG1[2]) > 0x20)
-    {
-        KeyValue = 10;
-		printf("[·µ»ØKey: %d]\n", KeyValue);
-    }
+	if((SampleNumG1[2] - 5 <= 0x7ff) && (SampleNumG1[2] + 5 >= 0x7ff))
+	{
+		SampleRefnumG1Flag[2] = 0xa5;
+	}
+//	printf("[SampleRefnumG1[2]: %#x, %#x]\n", SampleRefnumG1[2], SampleNumG1[2]);
+	if(SampleRefnumG1Flag[2] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG1[2]-SampleNumG1[2]) > 0x20)
+	    {
+	        KeyValue = 10;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG1Flag[2] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G1P2);
 
     /* acquisition pin3 of group5 */
@@ -680,11 +772,22 @@ void G1GetKey(void)
     {
 		SampleNumG1[3] =  tsi_group1_cycle_get();
     }
-    if((SampleRefnumG1[3] - SampleNumG1[3]) > 0x20)
-    {
-		KeyValue = 9;
-		printf("[Key: %d]\n", KeyValue);
-    }
+	
+	if((SampleNumG1[3] - 5 <= 0x7ff) && (SampleNumG1[3] + 5 >= 0x7ff))
+	{
+		SampleRefnumG1Flag[3] = 0xa5;
+	}
+//	printf("[SampleRefnumG1[3]: %#x, %#x]\n", SampleRefnumG1[3], SampleNumG1[3]);
+	if(SampleRefnumG1Flag[3] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG1[3]-SampleNumG1[3]) > 0x20)
+	    {
+	        KeyValue = 9;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG1Flag[3] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G1P3);
 }
 
@@ -741,12 +844,22 @@ void G2GetKey(void)
     {
 		SampleNumG2[2] = tsi_group2_cycle_get();
     }
-	
-    if((SampleRefnumG2[2]-SampleNumG2[2]) > 0x20)
-    {
-        KeyValue = 8;
-		printf("[Key: %d]\n", KeyValue);
-    }
+
+	if((SampleNumG2[2] - 5 <= 0x7ff) && (SampleNumG2[2] + 5 >= 0x7ff))
+	{
+		SampleRefnumG2Flag[2] = 0xa5;
+	}
+//	printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG2[2], SampleNumG2[2]);
+	if(SampleRefnumG2Flag[2] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG2[2]-SampleNumG2[2]) > 0x20)
+	    {
+	        KeyValue = 8;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG2Flag[2] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G2P2);
 
     /* acquisition pin3 of group5 */
@@ -757,11 +870,22 @@ void G2GetKey(void)
     {
 		SampleNumG2[3] =  tsi_group2_cycle_get();
     }
-    if((SampleRefnumG2[3] - SampleNumG2[3]) > 0x20)
-    {
-		KeyValue = 7;
-		printf("[Key: %d]\n", KeyValue);
-    }
+
+	if((SampleNumG2[3] - 5 <= 0x7ff) && (SampleNumG2[3] + 5 >= 0x7ff))
+	{
+		SampleRefnumG2Flag[3] = 0xa5;
+	}
+//	printf("[SampleRefnumG3[3]: %#x, %#x]\n", SampleRefnumG2[3], SampleNumG2[3]);
+	if(SampleRefnumG2Flag[3] == 0xa5)
+	{
+		/* channel 1 touch */
+		if((SampleRefnumG2[3]-SampleNumG2[3]) > 0x20)
+	    {
+	        KeyValue = 7;
+			printf("[Key: %d]\n", KeyValue);
+			SampleRefnumG2Flag[3] = 0;
+	    }
+	}
     tsi_channel_pin_disable(TSI_CHCFG_G2P3);
 }
 
@@ -802,7 +926,7 @@ void GetKeyHandle(void)
 {
 	static uint32_t GetKeyTicks = 0;
 	
-    if(((GetKeyTicks + 350) <= GetTimeTicks()) || (GetKeyTicks > GetTimeTicks()))
+    if(((GetKeyTicks + 300) <= GetTimeTicks()) || (GetKeyTicks > GetTimeTicks()))
     {
         GetKeyTicks = GetTimeTicks();
         GetKey();

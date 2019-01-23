@@ -490,11 +490,16 @@ void tsi_flag_clear(uint32_t flag)
 FlagStatus tsi_flag_get(uint32_t flag)
 {
     FlagStatus flag_status;
-    if(TSI_INTF & flag){
+	
+    if(TSI_INTF & flag)
+	{
         flag_status = SET;
-    }else{
+    }
+	else
+	{
         flag_status = RESET;
     }
+	
     return flag_status;
 }
 

@@ -488,7 +488,7 @@ int BuleReconnect(void)
 	{
         //ledµÆ
         GreenLed();
-		printf("retry = %d\n", retry);
+	//	printf("retry = %d\n", retry);
 		switch (step)
 		{
 			case BLUE_RESET:
