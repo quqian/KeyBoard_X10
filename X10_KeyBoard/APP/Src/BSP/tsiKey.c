@@ -380,11 +380,7 @@ void G3GetKey(void)
      //   SampleNumG3[1] = tsi_group5_cycle_get();
 		SampleNumG3[1] = tsi_group3_cycle_get();
     }
-	if(SampleNumG3[1] == 0x7ff)
-	{
-		SampleRefnumG3Flag[1] = 0xa5;
-	}
-	if((SampleNumG3[1] - 5 <= 0x7ff) && (SampleNumG3[1] + 5 >= 0x7ff))
+	if((SampleNumG3[1] - 0x100 <= 0x7ff) && (SampleNumG3[1] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG3Flag[1] = 0xa5;
 	}
@@ -392,7 +388,7 @@ void G3GetKey(void)
 	if(SampleRefnumG3Flag[1] == 0xa5)
 	{
 		/* channel 1 touch */
-		if((SampleRefnumG3[1]-SampleNumG3[1]) > 0x6)
+		if((SampleRefnumG3[1]-SampleNumG3[1]) > 0x20)
 	    {
 	        KeyValue = 2;
 			printf("[Key: %d]\n", KeyValue);
@@ -410,15 +406,15 @@ void G3GetKey(void)
       //  SampleNumG3[2] = tsi_group5_cycle_get();
 		SampleNumG3[2] = tsi_group3_cycle_get();
     }
-	if((SampleNumG3[2] - 25 <= 0x6b6) && (SampleNumG3[2] + 25 >= 0x6b6))
+	if((SampleNumG3[2] - 0x100 <= 0x706) && (SampleNumG3[2] + 0x100 >= 0x706))
 	{
 		SampleRefnumG3Flag[2] = 0xa5;
 	}
-	//printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
+//	printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
 	if(SampleRefnumG3Flag[2] == 0xa5)
 	{
 		/* channel 1 touch */
-		if((SampleRefnumG3[2]-SampleNumG3[2]) > 0x60)
+		if((SampleRefnumG3[2]-SampleNumG3[2]) > 0x20)
 	    {
 	        KeyValue = 1;
 			printf("[Key: %d]\n", KeyValue);
@@ -437,7 +433,7 @@ void G3GetKey(void)
 		SampleNumG3[0] =  tsi_group3_cycle_get();
     }
 	
-	if((SampleNumG3[0] - 5 <= 0x7ff) && (SampleNumG3[0] + 5 >= 0x7ff))
+	if((SampleNumG3[0] - 0x100 <= 0x7ff) && (SampleNumG3[0] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG3Flag[0] = 0xa5;
 	}
@@ -524,10 +520,11 @@ void G5GetKey(void)
 		SampleNumG5[1] = tsi_group5_cycle_get();
     }
 
-	if(SampleNumG5[1] == 0x7ff)
+	if((SampleNumG5[1] - 0x100 <= 0x7ff) && (SampleNumG5[1] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG5Flag[1] = 0xa5;
 	}
+//	printf("[SampleRefnumG5[1]: %#x, %#x]\n", SampleRefnumG5[1], SampleNumG5[1]);
 	if(SampleRefnumG5Flag[1] == 0xa5)
 	{
 		/* channel 1 touch */
@@ -549,10 +546,11 @@ void G5GetKey(void)
 		SampleNumG5[2] = tsi_group5_cycle_get();
     }
 
-	if(SampleNumG5[2] == 0x7ff)
+	if((SampleNumG5[2] - 0x100 <= 0x7ff) && (SampleNumG5[2] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG5Flag[2] = 0xa5;
 	}
+//	printf("[SampleRefnumG5[2]: %#x, %#x]\n", SampleRefnumG5[2], SampleNumG5[2]);
 	if(SampleRefnumG5Flag[2] == 0xa5)
 	{
 		/* channel 1 touch */
@@ -574,10 +572,11 @@ void G5GetKey(void)
 		SampleNumG5[3] =  tsi_group5_cycle_get();
     }
 
-	if(SampleNumG5[3] == 0x7ff)
+	if((SampleNumG5[3] - 0x100 <= 0x7ff) && (SampleNumG5[3] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG5Flag[3] = 0xa5;
 	}
+//	printf("[SampleRefnumG5[3]: %#x, %#x]\n", SampleRefnumG5[3], SampleNumG5[3]);
 	if(SampleRefnumG5Flag[3] == 0xa5)
 	{
 		/* channel 1 touch */
@@ -634,7 +633,7 @@ void G0GetKey(void)
 		SampleNumG0[1] = tsi_group0_cycle_get();
     }
 	
-	if((SampleNumG0[1] - 5 <= 0x7ff) && (SampleNumG0[1] + 5 >= 0x7ff))
+	if((SampleNumG0[1] - 0x100 <= 0x7ff) && (SampleNumG0[1] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG0Flag[1] = 0xa5;
 	}
@@ -721,7 +720,7 @@ void G1GetKey(void)
 		SampleNumG1[1] = tsi_group1_cycle_get();
     }
 	
-	if((SampleNumG1[1] - 5 <= 0x7ff) && (SampleNumG1[1] + 5 >= 0x7ff))
+	if((SampleNumG1[1] - 0x100 <= 0x7ff) && (SampleNumG1[1] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG1Flag[1] = 0xa5;
 	}
@@ -747,7 +746,7 @@ void G1GetKey(void)
 		SampleNumG1[2] = tsi_group1_cycle_get();
     }
 	
-	if((SampleNumG1[2] - 5 <= 0x7ff) && (SampleNumG1[2] + 5 >= 0x7ff))
+	if((SampleNumG1[2] - 0x100 <= 0x7ff) && (SampleNumG1[2] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG1Flag[2] = 0xa5;
 	}
@@ -773,7 +772,7 @@ void G1GetKey(void)
 		SampleNumG1[3] =  tsi_group1_cycle_get();
     }
 	
-	if((SampleNumG1[3] - 5 <= 0x7ff) && (SampleNumG1[3] + 5 >= 0x7ff))
+	if((SampleNumG1[3] - 0x100 <= 0x7ff) && (SampleNumG1[3] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG1Flag[3] = 0xa5;
 	}
@@ -845,7 +844,7 @@ void G2GetKey(void)
 		SampleNumG2[2] = tsi_group2_cycle_get();
     }
 
-	if((SampleNumG2[2] - 5 <= 0x7ff) && (SampleNumG2[2] + 5 >= 0x7ff))
+	if((SampleNumG2[2] - 0x100 <= 0x7ff) && (SampleNumG2[2] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG2Flag[2] = 0xa5;
 	}
@@ -871,7 +870,7 @@ void G2GetKey(void)
 		SampleNumG2[3] =  tsi_group2_cycle_get();
     }
 
-	if((SampleNumG2[3] - 5 <= 0x7ff) && (SampleNumG2[3] + 5 >= 0x7ff))
+	if((SampleNumG2[3] - 0x100 <= 0x7ff) && (SampleNumG2[3] + 0x100 >= 0x7ff))
 	{
 		SampleRefnumG2Flag[3] = 0xa5;
 	}
