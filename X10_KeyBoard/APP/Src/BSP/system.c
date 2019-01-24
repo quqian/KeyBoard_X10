@@ -68,12 +68,12 @@ void LoadSystemInfo(void)
    //	if(0)
     {
         printf("\n\n\n===========================================================\n");
-        CL_LOG("\rU8Sub启动App\n");
+        CL_LOG("\r启动App\n");
     }
     else
     {
         printf("\n\n\n***********************************************************\n");
-        CL_LOG("\rU8Sub初次启动App\n");
+        CL_LOG("\r初次启动App\n");
 		SetRtcCount(1545991167);
         
         memset((void*)&SaveInfo, 0, sizeof(SaveInfo));

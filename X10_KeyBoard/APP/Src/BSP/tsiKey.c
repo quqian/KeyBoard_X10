@@ -68,9 +68,9 @@ uint8_t KeyValue = 0xff;
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG0[4] = {0, 0, 0, 0};
 /* reference value sample array of TSI group5 */
-uint16_t SampleRefnumArrayG0P1[20] = {0};
-uint16_t SampleRefnumArrayG0P2[20] = {0};
-uint16_t SampleRefnumArrayG0P3[20] = {0};
+uint16_t SampleRefnumArrayG0P1[20] = {0,};
+uint16_t SampleRefnumArrayG0P2[20] = {0,};
+uint16_t SampleRefnumArrayG0P3[20] = {0,};
 /* average value of cycles */
 uint16_t SampleRefnumG0[4] = {0,};
 uint8_t SampleRefnumG0Flag[4] = {0,};
@@ -79,9 +79,9 @@ uint8_t SampleRefnumG0Flag[4] = {0,};
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG1[4] = {0,0,0,0};
 /* reference value sample array of TSI group5 */
-uint16_t SampleRefnumArrayG1P1[20] = {0};
-uint16_t SampleRefnumArrayG1P2[20] = {0};
-uint16_t SampleRefnumArrayG1P3[20] = {0};
+uint16_t SampleRefnumArrayG1P1[20] = {0,};
+uint16_t SampleRefnumArrayG1P2[20] = {0,};
+uint16_t SampleRefnumArrayG1P3[20] = {0,};
 /* average value of cycles */
 uint16_t SampleRefnumG1[4] = {0,};
 uint8_t SampleRefnumG1Flag[4] = {0,};
@@ -89,9 +89,9 @@ uint8_t SampleRefnumG1Flag[4] = {0,};
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG2[4] = {0,0,0,0};
 /* reference value sample array of TSI group5 */
-uint16_t SampleRefnumArrayG2P1[20] = {0};
-uint16_t SampleRefnumArrayG2P2[20] = {0};
-uint16_t SampleRefnumArrayG2P3[20] = {0};
+uint16_t SampleRefnumArrayG2P1[20] = {0,};
+uint16_t SampleRefnumArrayG2P2[20] = {0,};
+uint16_t SampleRefnumArrayG2P3[20] = {0,};
 /* average value of cycles */
 uint16_t SampleRefnumG2[4] = {0,};
 uint8_t SampleRefnumG2Flag[4] = {0,};
@@ -100,9 +100,9 @@ uint8_t SampleRefnumG2Flag[4] = {0,};
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG3[4] = {0,0,0,0};
 /* reference value sample array of TSI group5 */
-uint16_t SampleRefnumArrayG3P1[20] = {0};
-uint16_t SampleRefnumArrayG3P2[20] = {0};
-uint16_t SampleRefnumArrayG3P0[20] = {0};
+uint16_t SampleRefnumArrayG3P1[20] = {0,};
+uint16_t SampleRefnumArrayG3P2[20] = {0,};
+uint16_t SampleRefnumArrayG3P0[20] = {0,};
 /* average value of cycles */
 uint16_t SampleRefnumG3[4] = {0,};
 uint8_t SampleRefnumG3Flag[4] = {0,};
@@ -111,9 +111,9 @@ uint8_t SampleRefnumG3Flag[4] = {0,};
 /* the current cycle number array of the channel pin */
 uint16_t SampleNumG5[4] = {0,0,0,0};
 /* reference value sample array of TSI group5 */
-uint16_t SampleRefnumArrayG5P1[20] = {0};
-uint16_t SampleRefnumArrayG5P2[20] = {0};
-uint16_t SampleRefnumArrayG5P3[20] = {0};
+uint16_t SampleRefnumArrayG5P1[20] = {0,};
+uint16_t SampleRefnumArrayG5P2[20] = {0,};
+uint16_t SampleRefnumArrayG5P3[20] = {0,};
 /* average value of cycles */
 uint16_t SampleRefnumG5[4] = {0,};
 uint8_t SampleRefnumG5Flag[4] = {0,};
