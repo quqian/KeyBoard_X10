@@ -79,7 +79,7 @@ void BspInit(void)
 ////    PlayVoice(VOIC_DEVICE_REBOOT);           //设备重启
 ////    DelayMsWithNoneOs(900);
     printf("\n\n\n===========================================================\n");
-    CL_LOG(" U8Sub启动bootLoad\n");
+    CL_LOG("启动bootLoad\n");
     printf("fw_version: %d.\n", (uint8_t)FW_VERSION);
     printf("\n U8Sub bootload编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
     printf("\n===========================================================\n");

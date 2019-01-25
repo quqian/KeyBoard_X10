@@ -432,7 +432,7 @@ void G3GetKey(void)
 	{
 		SampleRefnumG3Flag[2] = 0xa5;
 	}
-	printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
+//	printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
 	if(SampleRefnumG3Flag[2] == 0xa5)
 	{
 		/* channel 1 touch */
@@ -945,11 +945,9 @@ void GetKey(void)
 
 void GetKeyHandle(void)
 {
-	static uint32_t GetKeyTicks = 0;
-	
-    if(((GetKeyTicks + 300) <= GetTimeTicks()) || (GetKeyTicks > GetTimeTicks()))
+    if(((GlobalInfo.GetKeyTicks + 500) <= GetTimeTicks()) || (GlobalInfo.GetKeyTicks > GetTimeTicks()))
     {
-        GetKeyTicks = GetTimeTicks();
+        GlobalInfo.GetKeyTicks = GetTimeTicks();
         GetKey();
     }
 }

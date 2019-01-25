@@ -78,7 +78,7 @@
 
 
 #define CL_LOG(fmt,args...) do {    \
-    printf("[U8s] %s:(%d) " fmt, __func__, __LINE__, ##args); \
+    printf("[X10KB] %s:(%d) " fmt, __func__, __LINE__, ##args); \
 }while(0)
 
 //extern char* GetCurrentTime(void);

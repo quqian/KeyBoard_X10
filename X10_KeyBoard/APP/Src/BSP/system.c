@@ -86,6 +86,7 @@ void LoadSystemInfo(void)
 #endif
     CL_LOG("\n 文件编译时间, 月日年 %s 时分秒%s \n", __DATE__, __TIME__);
 	SystemInfo.soft_version = FW_VERSION;
+	GlobalInfo.GetKeyTicks = GetTimeTicks();
 }
 
 void StartDelay(void)
