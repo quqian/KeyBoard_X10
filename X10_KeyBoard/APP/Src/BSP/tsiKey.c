@@ -140,6 +140,7 @@ int KeyValuesUpLoad(uint8_t values)
 
 //按键返回事件
 void KeyCallBack(uint8_t values)
+#if 1
 {
 	if((0xff != values) && (11 >= values))
 	{
@@ -147,6 +148,30 @@ void KeyCallBack(uint8_t values)
 		CL_LOG("[key: %d]\r\n", values);
 	}
 }
+#else
+{
+	static uint32_t TimeFlagTicks = 0;
+	static uint32_t kkkk = 0;
+	
+	if((0xff != values) && (11 >= values))
+	{
+		KeyValuesUpLoad(values);
+		CL_LOG("[key: %d]\r\n", values);
+		kkkk = 0xa5;
+	}
+	if(kkkk == 0xa5)//((TimeFlagTicks + 500) >= GetTimeTicks())
+	{
+		kkkk = 0;
+		TimeFlagTicks = GetTimeTicks();
+		GREEN_LIGHT_ON();
+		//DelayMsWithNoneOs(500);
+	}
+	else if((TimeFlagTicks + 500) <= GetTimeTicks())
+	{
+		GREEN_LIGHT_OFF();
+	}
+}
+#endif
 
 void gpio_config(void)
 {
@@ -322,7 +347,6 @@ void InitTsiG3(void)
         if((uint8_t)SET == tsi_flag_get(TSI_FLAG_CTCF))
         {
             /* get charge transfer complete cycle number */
-          //  SampleRefnumArrayG3P1[m] = tsi_group5_cycle_get();
 			SampleRefnumArrayG3P1[m] = tsi_group3_cycle_get();
         }
 
@@ -334,7 +358,6 @@ void InitTsiG3(void)
 
         if((uint8_t)SET == tsi_flag_get(TSI_FLAG_CTCF))
         {
-          //  SampleRefnumArrayG3P2[m] = tsi_group5_cycle_get();
 			SampleRefnumArrayG3P2[m] = tsi_group3_cycle_get();
         }
 
@@ -345,7 +368,6 @@ void InitTsiG3(void)
 
         if((uint8_t)SET == tsi_flag_get(TSI_FLAG_CTCF))
         {
-          //  SampleRefnumArrayG3P0[m] = tsi_group5_cycle_get();
 			SampleRefnumArrayG3P0[m] = tsi_group3_cycle_get();
         }
               
@@ -406,11 +428,11 @@ void G3GetKey(void)
       //  SampleNumG3[2] = tsi_group5_cycle_get();
 		SampleNumG3[2] = tsi_group3_cycle_get();
     }
-	if((SampleNumG3[2] - 0x100 <= 0x706) && (SampleNumG3[2] + 0x100 >= 0x706))
+	if((SampleNumG3[2] - 0x30 <= 0x6d4) && (SampleNumG3[2] + 0x30 >= 0x6d4))
 	{
 		SampleRefnumG3Flag[2] = 0xa5;
 	}
-//	printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
+	printf("[SampleRefnumG3[2]: %#x, %#x]\n", SampleRefnumG3[2], SampleNumG3[2]);
 	if(SampleRefnumG3Flag[2] == 0xa5)
 	{
 		/* channel 1 touch */
