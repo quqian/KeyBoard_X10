@@ -113,7 +113,6 @@ int main(void)
     
     while(1)
     {
-        //这里不要加看门狗喂狗
         printf("没有app程序!\n");
     }
 }
